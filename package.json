@@ -1,0 +1,41 @@
+{
+  "name": "counter-button-maker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "precommit": "lint-staged",
+    "build": "webpack-cli --config build/webpack.client.js",
+    "dev": "webpack-serve --config build/webpack.client.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "lint-staged": {
+    "*.{css,js,json,ts,tsx,vue}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "keywords": [],
+  "author": "uhyo",
+  "license": "MIT",
+  "devDependencies": {
+    "html-webpack-plugin": "^3.2.0",
+    "husky": "^0.14.3",
+    "lint-staged": "^7.0.4",
+    "prettier": "^1.12.0",
+    "ts-loader": "^4.2.0",
+    "typescript": "^2.8.1",
+    "vue-loader": "^14.2.2",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^4.5.0",
+    "webpack-cli": "^2.0.14",
+    "webpack-serve": "^0.3.1"
+  },
+  "dependencies": {
+    "vue": "^2.5.16",
+    "vue-class-component": "^6.2.0",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1",
+    "vuex-router-sync": "^5.0.0"
+  }
+}
