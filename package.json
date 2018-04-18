@@ -10,7 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "lint-staged": {
-    "*.{css,js,json,ts,tsx,vue}": [
+    "*.{css,js,json,ts,tsx}": [
       "prettier --write",
       "git add"
     ]
@@ -19,6 +19,9 @@
   "author": "uhyo",
   "license": "MIT",
   "devDependencies": {
+    "@types/react": "^16.3.11",
+    "@types/react-dom": "^16.0.5",
+    "@types/react-router-dom": "^4.2.6",
     "connect-history-api-fallback": "^1.5.0",
     "html-webpack-plugin": "^3.2.0",
     "husky": "^0.14.3",
@@ -27,17 +30,13 @@
     "prettier": "^1.12.0",
     "ts-loader": "^4.2.0",
     "typescript": "^2.8.1",
-    "vue-loader": "^14.2.2",
-    "vue-template-compiler": "^2.5.16",
     "webpack": "^4.5.0",
     "webpack-cli": "^2.0.14",
     "webpack-serve": "^0.3.1"
   },
   "dependencies": {
-    "vue": "^2.5.16",
-    "vue-class-component": "^6.2.0",
-    "vue-router": "^3.0.1",
-    "vuex": "^3.0.1",
-    "vuex-router-sync": "^5.0.0"
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2",
+    "react-router-dom": "^4.2.2"
   }
 }

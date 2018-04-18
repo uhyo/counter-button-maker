@@ -6,7 +6,7 @@ const production = process.env.NODE_ENV === 'production';
 module.exports = {
   mode: production ? 'production' : 'development',
   entry: {
-    app: path.join(__dirname, '../src/client-init.ts'),
+    app: path.join(__dirname, '../src/client-init.tsx'),
   },
   output: {
     path: path.join(__dirname, '../dist'),
@@ -15,20 +15,13 @@ module.exports = {
     chunkFilename: '[id].[chunkhash].js',
   },
   resolve: {
-    extensions: ['.js', '.ts'],
+    extensions: ['.js', '.ts', '.tsx'],
   },
   module: {
     rules: [
       {
-        test: /\.vue$/,
-        loader: 'vue-loader',
-      },
-      {
-        test: /\.ts$/,
+        test: /\.tsx?$/,
         loader: 'ts-loader',
-        options: {
-          appendTsSuffixTo: [/\.vue$/],
-        },
       },
     ],
   },

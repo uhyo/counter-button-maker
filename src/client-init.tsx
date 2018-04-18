@@ -1,0 +1,7 @@
+import * as React from 'react';
+import { render } from 'react-dom';
+import { App } from './index';
+
+const appArea = document.getElementById('app');
+
+render(<App />, appArea);
