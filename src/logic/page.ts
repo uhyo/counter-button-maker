@@ -12,5 +12,6 @@ export function fetchCounterPageContent(
     title: 'にゃんぱすーボタン',
     description:
       'にゃんぱすーをシェアできる全く新しい画期的なWEBサービスですのん',
+    button: 'にゃんぱすー',
   });
 }

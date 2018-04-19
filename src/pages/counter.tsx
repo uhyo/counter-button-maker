@@ -1,38 +1,32 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
-import { CounterPageData } from '../defs/page';
+import { CounterPageData, CounterPageContent } from '../defs/page';
 import { counterStore, StoreConsumer } from '../store';
+import { PageWrapperBase } from './base';
+import { Centralize } from '../components/center';
+import { MainContent } from '../components/main-content';
+import { CounterValue } from '../components/counter';
 
-export interface IPropCounterPageInner {
-  store: typeof counterStore;
+export interface IPropCounterPage {
+  content: CounterPageContent;
 }
 @observer
-class CounterPageInner extends React.Component<IPropCounterPageInner, {}> {
+export class CounterPage extends React.Component<IPropCounterPage, {}> {
   public render() {
-    const { count } = this.props.store;
+    const {
+      content: { title, description },
+    } = this.props;
     return (
-      <div>
-        <p>Counter! {count}</p>
-      </div>
-    );
-  }
-}
-
-/**
- * Page for counter.
- */
-export class CounterPage extends React.PureComponent {
-  public render() {
-    return (
-      <StoreConsumer>
-        {stores => {
-          if (stores != null) {
-            return <CounterPageInner store={stores.counter} />;
-          } else {
-            return null;
-          }
-        }}
-      </StoreConsumer>
+      <PageWrapperBase>
+        <Centralize>
+          <MainContent>
+            <p>{description}</p>
+            <StoreConsumer>
+              {({ counter }) => <CounterValue counterStore={counter} />}
+            </StoreConsumer>
+          </MainContent>
+        </Centralize>
+      </PageWrapperBase>
     );
   }
 }

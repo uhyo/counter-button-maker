@@ -25,6 +25,10 @@ export interface CounterPageContent {
    * Description of page.
    */
   description: string;
+  /**
+   * Button label.
+   */
+  button: string;
 }
 
 /**

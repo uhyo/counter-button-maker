@@ -17,16 +17,14 @@ export function TopPage() {
         <MainContent>
           <h1>{serviceName}</h1>
           <Description>{serviceDescription}</Description>
-          <p>
-            <StoreConsumer>
-              {({ counter }) => (
-                <CounterValue
-                  title="作成されたサービスの数"
-                  counterStore={counter}
-                />
-              )}
-            </StoreConsumer>
-          </p>
+          <StoreConsumer>
+            {({ counter }) => (
+              <CounterValue
+                title="作成されたサービスの数"
+                counterStore={counter}
+              />
+            )}
+          </StoreConsumer>
         </MainContent>
       </Centralize>
     </Wrapper>

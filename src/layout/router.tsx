@@ -25,7 +25,7 @@ export class Router extends React.Component<IPropRouter, {}> {
         return <TopPage />;
       }
       case 'counter': {
-        return <CounterPage />;
+        return <CounterPage content={page.content} />;
       }
     }
   }
