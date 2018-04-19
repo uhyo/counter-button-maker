@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { TopPage } from '../pages/index';
+import { TopPage } from '../pages/top';
 import { CounterPage } from '../pages/counter';
 import { StoreProvider, counterStore, pageStore } from '../store';
 import { Router } from './router';

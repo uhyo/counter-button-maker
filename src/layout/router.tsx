@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
 import { StoreConsumer } from '../store';
-import { TopPage } from '../pages';
+import { TopPage } from '../pages/top';
 import { CounterPage } from '../pages/counter';
 import { PageStore } from '../store/page-store';
 

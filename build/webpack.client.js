@@ -12,6 +12,7 @@ module.exports = Object.assign({}, base, {
     }),
   ]),
   serve: {
+    host: '0.0.0.0',
     add: (app, middleware, options) => {
       // webpack-serve setting for path fallbacks.
       const historyOptions = {};
