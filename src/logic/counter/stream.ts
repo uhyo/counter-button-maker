@@ -42,6 +42,10 @@ export abstract class CounterStream {
    */
   public abstract close(): void;
   /**
+   * Increment the counter.
+   */
+  public abstract increment(): void;
+  /**
    * Emit counter event.
    */
   protected emit(count: number): void {
@@ -55,14 +59,16 @@ export abstract class CounterStream {
  */
 export class TestingStream extends CounterStream {
   protected timerid: any;
-  protected start() {
+  protected counter: number = 0;
+  protected async start() {
     // randomly update counters.
-    let counter = Math.floor(Math.random() * 10);
     const loop = () => {
-      counter++;
-      this.emit(counter);
-      this.timerid = setTimeout(loop, Math.floor(Math.random() * 1500));
+      this.counter++;
+      this.emit(this.counter);
+      this.timerid = setTimeout(loop, Math.floor(Math.random() * 9000));
     };
+    await void 0;
+    this.counter = Math.floor(Math.random() * 10);
     loop();
   }
   public close() {
@@ -70,5 +76,8 @@ export class TestingStream extends CounterStream {
       clearTimeout(this.timerid);
     }
     this.emitter.emit('close');
+  }
+  public increment() {
+    this.emit(++this.counter);
   }
 }
