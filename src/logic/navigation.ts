@@ -1,53 +1,60 @@
 import { pageStore } from '../store';
-import { fetchCounterPageContent } from './page';
+import { fetchCounterPageContent } from './counter';
 import { history } from './history';
 import { handleError } from './error';
-import { PageData } from '../defs/page';
+import { PageData, CounterPageData } from '../defs/page';
 import { serviceName } from '../defs/service';
+import { Router } from '../layout/router';
+import { Routing } from './routing';
+
+/**
+ * Router for navigation.
+ */
+export const router = new Routing();
+router.add('/', {
+  beforeMove: async () => {
+    return {
+      page: 'top',
+    };
+  },
+  beforeLeave: async () => {},
+});
+router.add<{ id: string }, CounterPageData>('/:id([-_a-zA-Z0-9]{4,})', {
+  beforeMove: async ({ id }) => {
+    // Fetch page data for it.
+    const content = await fetchCounterPageContent(id);
+    return {
+      page: 'counter',
+      content,
+    };
+  },
+  beforeLeave: async () => {},
+});
+
+/**
+ * Move to given path.
+ */
+export async function move(pathname: string) {
+  const res = router.route(pathname);
+  if (res == null) {
+    // TODO
+    navigate(null, true);
+    return;
+  }
+  const route = res.route;
+  const page = await route.beforeMove(res.params);
+
+  navigate(page, true);
+}
 
 /**
  * Initialize the page store
  * using `location` information.
  */
-export function initFromLocation() {
+export async function initFromLocation() {
   const { pathname } = location;
-  let r;
-  if (pathname === '/') {
-    // move to top page.
-    navigate(
-      {
-        page: 'top',
-      },
-      true,
-    );
-  } else if ((r = pathname.match(/^\/([-_a-zA-Z0-9]{4,})$/))) {
-    // If it is already opened, do not perform network stuff.
-    const { page } = pageStore;
-    if (page != null && page.page === 'counter' && page.content.id === r[1]) {
-      return;
-    }
-    // else, fetch data for this counter page.
-    navigateToCounterPage(r[1], true).catch(handleError);
-  } else {
-    // TODO
-    navigate(null, true);
-  }
-}
-/**
- * Navigate to a counter page.
- */
-export async function navigateToCounterPage(
-  id: string,
-  replace: boolean = false,
-) {
-  const content = await fetchCounterPageContent(id);
-  navigate(
-    {
-      page: 'counter',
-      content,
-    },
-    replace,
-  );
+
+  await move(pathname);
 }
 
 /**

@@ -1,4 +1,4 @@
-import { CounterPageContent } from '../defs/page';
+import { CounterPageContent } from '../../defs/page';
 
 /**
  * Fetch data of counter page.
