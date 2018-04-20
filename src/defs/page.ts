@@ -16,6 +16,17 @@ export interface CounterPageData {
    */
   content: CounterPageContent;
 }
+export type BackgroundDef =
+  | {
+      type: 'gradient';
+      from: string;
+      to: string;
+    }
+  | {
+      type: 'image';
+      url: string;
+    }
+  | null;
 
 export interface CounterPageContent {
   /**
@@ -33,7 +44,19 @@ export interface CounterPageContent {
   /**
    * Button label.
    */
-  button: string;
+  buttonLabel: string;
+  /**
+   * Button background color.
+   */
+  buttonBg: string;
+  /**
+   * Button font color.
+   */
+  buttonColor: string;
+  /**
+   * Background.
+   */
+  background: BackgroundDef;
 }
 
 /**

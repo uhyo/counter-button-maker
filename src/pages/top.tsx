@@ -36,8 +36,6 @@ export function TopPage() {
  */
 const Wrapper = styled(PageWrapperBase)`
   background: url(/static/back.jpg);
-  background-size: cover;
-  background-position: center;
 `;
 
 const Description = styled.p`

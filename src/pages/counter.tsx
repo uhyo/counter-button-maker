@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { observer } from 'mobx-react';
 import { bind } from 'bind-decorator';
-import { CounterPageData, CounterPageContent } from '../defs/page';
+import {
+  CounterPageData,
+  CounterPageContent,
+  BackgroundDef,
+} from '../defs/page';
 import { StoreConsumer } from '../store';
 import { PageWrapperBase } from './base';
 import { Centralize } from '../components/center';
@@ -9,6 +13,7 @@ import { MainContent } from '../components/main-content';
 import { CounterValue } from '../components/counter';
 import { PageStore } from '../store/page-store';
 import { Button } from '../components/button';
+import styled from 'styled-components';
 
 export interface IPropCounterPage {
   content: CounterPageContent;
@@ -17,10 +22,17 @@ export interface IPropCounterPage {
 export class CounterPage extends React.Component<IPropCounterPage, {}> {
   public render() {
     const {
-      content: { title, description, button },
+      content: {
+        title,
+        description,
+        background,
+        buttonLabel,
+        buttonBg,
+        buttonColor,
+      },
     } = this.props;
     return (
-      <PageWrapperBase>
+      <PageWrapper background={background}>
         <Centralize>
           <MainContent>
             <StoreConsumer>
@@ -29,39 +41,76 @@ export class CounterPage extends React.Component<IPropCounterPage, {}> {
                   <p>{description}</p>
                   <CounterValue counterStore={counter} />
                   <p>
-                    <IncrementButton pageStore={page}>{button}</IncrementButton>
+                    <IncrementButton
+                      pageStore={page}
+                      buttonBg={buttonBg}
+                      buttonColor={buttonColor}
+                    >
+                      {buttonLabel}
+                    </IncrementButton>
                   </p>
                 </>
               )}
             </StoreConsumer>
           </MainContent>
         </Centralize>
-      </PageWrapperBase>
+      </PageWrapper>
     );
   }
 }
 
-class IncrementButton extends React.Component<
+class PageWrapperInner extends React.Component<
   {
-    pageStore: PageStore;
+    background: BackgroundDef;
+    className?: string;
   },
+  {}
+> {
+  public render() {
+    const { className, children } = this.props;
+    return <PageWrapperBase className={className}>{children}</PageWrapperBase>;
+  }
+}
+const PageWrapper = styled(PageWrapperInner)`
+  background: ${({ background }) =>
+    background == null
+      ? 'none'
+      : background.type === 'image'
+        ? `url(${background.url})`
+        : `linar-gradient(to bottom, ${background.from}, ${background.to})`};
+`;
+
+interface IPropIncremenButton {
+  pageStore: PageStore;
+  buttonBg: string;
+  buttonColor: string;
+}
+class IncrementButton extends React.Component<
+  IPropIncremenButton,
   {
     lastClickTime: number;
   }
 > {
-  constructor(props: { pageStore: PageStore }) {
+  constructor(props: IPropIncremenButton) {
     super(props);
     this.state = {
       lastClickTime: Date.now(),
     };
   }
   public render() {
-    const { children } = this.props;
+    const { children, buttonBg, buttonColor } = this.props;
     const disableDblClock = (e: React.SyntheticEvent<any>) => {
       e.preventDefault();
     };
     return (
-      <Button onClick={this.handleClick} onDoubleClick={disableDblClock}>
+      <Button
+        onClick={this.handleClick}
+        onDoubleClick={disableDblClock}
+        style={{
+          backgroundColor: buttonBg,
+          color: buttonColor,
+        }}
+      >
         {children}
       </Button>
     );
