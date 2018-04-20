@@ -1,3 +1,5 @@
+import { CounterStream } from '../logic/counter/stream';
+
 /**
  * Data of top page.
  */
@@ -9,6 +11,9 @@ export interface TopPageData {
  */
 export interface CounterPageData {
   page: 'counter';
+  /**
+   * Content of page.
+   */
   content: CounterPageContent;
 }
 

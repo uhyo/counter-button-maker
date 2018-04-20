@@ -2,8 +2,8 @@ import { tokensToRegExp, parse, Key } from 'path-to-regexp';
 import { Route } from '../../defs/routing';
 import { PageData } from '../../defs/page';
 
-export interface RouteResult<Params, PD extends PageData> {
-  route: Route<Params, PD>;
+export interface RouteResult<Params, PD extends PageData, State> {
+  route: Route<Params, PD, State>;
   params: Params;
 }
 
@@ -16,14 +16,14 @@ export class Routing {
   protected routes: Array<{
     regexp: RegExp;
     keys: Key[];
-    route: Route<any, any>;
+    route: Route<any, any, any>;
   }> = [];
   /**
    * Add a new route.
    */
-  public add<Params, PD extends PageData>(
+  public add<Params, PD extends PageData, State = {}>(
     path: string,
-    route: Route<Params, PD>,
+    route: Route<Params, PD, State>,
   ): void {
     // compile given path using path-to-regexp.
     const keys: Key[] = [];
@@ -37,7 +37,7 @@ export class Routing {
   /**
    * Perform routing.
    */
-  public route(path: string): RouteResult<any, any> | undefined {
+  public route(path: string): RouteResult<any, any, any> | undefined {
     for (const r of this.routes) {
       // TODO
       const res = path.match(r.regexp);
