@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { observer } from 'mobx-react';
 import { CounterStore } from '../store/counter-store';
+import { notPhone } from './media';
 
 export interface IPropCounterValue {
   counterStore: CounterStore;
@@ -22,7 +23,9 @@ export class CounterValue extends React.Component<IPropCounterValue, {}> {
     } = this.props;
     return (
       <OuterWrapper>
-        {title ? <TitleWrapper>{title}:</TitleWrapper> : null}
+        <TitleWrapper>
+          {title ? <TitleInner>{title}:</TitleInner> : null}
+        </TitleWrapper>
         <CounterWrapper>{count}</CounterWrapper>
       </OuterWrapper>
     );
@@ -32,25 +35,34 @@ export class CounterValue extends React.Component<IPropCounterValue, {}> {
 const OuterWrapper = styled.div`
   display: flex;
   flex-flow: column nowrap;
-  @media (min-width: 600px) {
+  ${notPhone`
     flex-flow: row nowrap;
     justify-content: flex-end;
 
     ::after {
       content: '';
-      flex: calc(50% - 1.2ex) 0 0;
+      flex: auto 1 0;
     }
-  }
+  `};
 `;
 
 const CounterWrapper = styled.span`
   align-self: center;
-  margin-left: 0.6ex;
 
   font-size: 2.4em;
   font-family: 'Do Hyeon', sans-serif;
 `;
 
 const TitleWrapper = styled.span`
+  flex: auto 1 0;
+  position: relative;
   align-self: center;
+`;
+
+const TitleInner = styled.span`
+  ${notPhone`
+    position: absolute;
+    top: -0.5em;
+    right: 1em;
+  `};
 `;
