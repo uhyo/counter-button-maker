@@ -105,15 +105,16 @@ export async function navigate<
   replace: boolean,
 ): Promise<void> {
   // update history.
-  if (page != null) {
-    const { path, title } = getHistoryInfo(page);
-    console.log('hist!', path, page);
-    if (replace) {
-      history.replace(path, page);
-    } else {
-      history.push(path, page);
+  if (history != null) {
+    if (page != null) {
+      const { path, title } = getHistoryInfo(page);
+      if (replace) {
+        history.replace(path, page);
+      } else {
+        history.push(path, page);
+      }
+      document.title = title;
     }
-    document.title = title;
   }
   pageStore.updatePage(route, params, page, state);
 }
