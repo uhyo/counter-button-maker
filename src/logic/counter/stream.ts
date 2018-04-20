@@ -58,7 +58,6 @@ export class TestingStream extends CounterStream {
   protected start() {
     // randomly update counters.
     let counter = Math.floor(Math.random() * 10);
-    this.emit(counter);
     const loop = () => {
       counter++;
       this.emit(counter);

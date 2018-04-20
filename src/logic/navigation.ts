@@ -5,7 +5,7 @@ import { handleError } from './error';
 import { PageData, CounterPageData } from '../defs/page';
 import { serviceName } from '../defs/service';
 import { Router } from '../layout/router';
-import { Routing } from './routing';
+import { Routing, Route } from './routing';
 import {
   makeCounterStream,
   CounterEvent,
@@ -55,17 +55,24 @@ router.add<{ id: string }, CounterPageData, { stream: CounterStream }>(
  * Move to given path.
  */
 export async function move(pathname: string) {
+  // Clean up previous state.
+  // It is intentionall non-blocking for fast loading of next page.
+  if (pageStore.route != null) {
+    pageStore.route
+      .beforeLeave(pageStore.params, pageStore.page, pageStore.state)
+      .catch(handleError);
+  }
   const res = router.route(pathname);
   if (res == null) {
     // TODO
-    navigate(null, null, true);
+    navigate(null, {}, null, null, true);
     return;
   }
   const route = res.route;
   const page = await route.beforeMove(res.params);
   const state = await route.beforeEnter(res.params, page);
 
-  navigate(page, state, true);
+  navigate(route, res.params, page, state, true);
 }
 
 /**
@@ -80,13 +87,21 @@ export async function initFromLocation() {
 
 /**
  * Navigate to given page.
+ * @param route Route object of current page.
+ * @param params Params object.
  * @param page Object of page to move to.
  * @param state Internal state used by this page.
  * @param replace Whether it replaces current page in history.
  */
-export async function navigate(
+export async function navigate<
+  Params extends Record<string, string>,
+  PD extends PageData,
+  State
+>(
+  route: Route<Params, PD, State> | null,
+  params: Params,
   page: PageData | null,
-  state: any,
+  state: State,
   replace: boolean,
 ): Promise<void> {
   // update history.
@@ -100,7 +115,7 @@ export async function navigate(
     }
     document.title = title;
   }
-  pageStore.updatePage(page);
+  pageStore.updatePage(route, params, page, state);
 }
 
 interface HistoryInfo {
