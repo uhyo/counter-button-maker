@@ -11,5 +11,18 @@ module.exports = Object.assign({}, base, {
     path: path.join(__dirname, '../dist-server/'),
     filename: 'index.js',
   },
-  externals: [WebpackNodeExternals()],
+  externals: [
+    WebpackNodeExternals(),
+    // We need to really require manifest.json at runtime.
+    (context, request, callback) => {
+      if (request === 'manifest.json') {
+        callback(
+          null,
+          `commonjs ${path.join(__dirname, '../dist/manifest.json')}`,
+        );
+      } else {
+        callback();
+      }
+    },
+  ],
 });

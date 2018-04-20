@@ -4,8 +4,6 @@
 import * as express from 'express';
 import * as core from 'express-serve-static-core';
 
-console.log('ex', express);
-
-export const e = (express as any) as () => core.Express;
+export const e = (express as any) as typeof express & (() => core.Express);
 
 export default e;

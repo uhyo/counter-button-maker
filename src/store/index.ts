@@ -9,4 +9,13 @@ export interface Stores {
   counter: CounterStore;
   page: PageStore;
 }
-export { pageStore, counterStore } from './stores';
+
+/**
+ * Construct a store.
+ */
+export function makeStores(): Stores {
+  return {
+    counter: new CounterStore(),
+    page: new PageStore(),
+  };
+}

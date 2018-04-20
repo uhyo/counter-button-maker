@@ -1,12 +1,19 @@
 import * as React from 'react';
-import { render } from 'react-dom';
+import { hydrate } from 'react-dom';
 import { App } from './index';
-import { initFromLocation } from './logic/navigation';
+import { Navigation } from './logic/navigation';
+import { makeStores } from './store';
 
 import '../css/app.css';
 
 const appArea = document.getElementById('app');
 
-render(<App />, appArea);
+// first, make stores.
+const stores = makeStores();
+// then, initialize Navigation.
+const navigation = new Navigation(stores);
 
-initFromLocation();
+hydrate(<App stores={stores} />, appArea);
+
+// Navigate using location.
+navigation.initFromLocation();
