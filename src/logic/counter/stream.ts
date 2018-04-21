@@ -12,9 +12,11 @@ export interface CounterEvent {
 
 /**
  * Make a stream.
+ * @param id Id of this counter.
+ * @param serve whether this stream is for server.
  */
-export function makeCounterStream(id: string): CounterStream {
-  const stream = new TestingStream(id);
+export function makeCounterStream(id: string, server: boolean): CounterStream {
+  const stream = new TestingStream(id, server);
   return stream;
 }
 
@@ -60,15 +62,23 @@ export abstract class CounterStream {
 export class TestingStream extends CounterStream {
   protected timerid: any;
   protected counter: number = 0;
+  constructor(id: string, protected server: boolean) {
+    super(id);
+  }
   protected async start() {
+    await void 0;
+    // If server, this decide initial counter.
+    this.counter = Math.floor(Math.random() * 10);
+    if (this.server) {
+      this.emit(this.counter);
+      return;
+    }
     // randomly update counters.
     const loop = () => {
       this.counter++;
       this.emit(this.counter);
       this.timerid = setTimeout(loop, Math.floor(Math.random() * 9000));
     };
-    await void 0;
-    this.counter = Math.floor(Math.random() * 10);
     loop();
   }
   public close() {

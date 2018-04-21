@@ -14,7 +14,7 @@ import { Stores } from '../store';
 
 export class Navigation {
   protected router: Routing;
-  constructor(protected stores: Stores) {
+  constructor(protected stores: Stores, public readonly server: boolean) {
     const { counter: counterStore } = stores;
     // Construct a router.
     const router = (this.router = new Routing());
@@ -40,7 +40,7 @@ export class Navigation {
         },
         beforeEnter: async ({ id }) => {
           // Prepare counter stream.
-          const stream = makeCounterStream(id);
+          const stream = makeCounterStream(id, this.server);
           stream.emitter.on('count', ({ count }: CounterEvent) => {
             counterStore.updateCount(count);
           });
@@ -122,10 +122,16 @@ export class Navigation {
     this.stores.page.updatePage(route, params, page, state);
   }
   /**
-   * Expose current page from store.
+   * Close navigation.
    */
-  public getCurrentPage(): PageData | null {
-    return this.stores.page.page;
+  public async close(): Promise<void> {
+    const { page: pageStore } = this.stores;
+    // Clean up current page.
+    if (pageStore.route != null) {
+      pageStore.route
+        .beforeLeave(pageStore.params, pageStore.page, pageStore.state)
+        .catch(handleError);
+    }
   }
 }
 

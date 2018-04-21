@@ -32,9 +32,10 @@ export interface RenderResult {
  */
 export async function render(pathname: string): Promise<RenderResult> {
   const stores = makeStores();
-  const nav = new Navigation(stores);
+  const nav = new Navigation(stores, true);
   await nav.move(pathname);
   const content = renderToString(<App stores={stores} />);
+  nav.close();
   const { params, page } = stores.page;
   if (page == null) {
     // TODO

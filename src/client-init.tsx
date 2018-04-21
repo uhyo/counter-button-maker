@@ -12,7 +12,7 @@ const appArea = document.getElementById('app');
 // first, make stores.
 const stores = makeStores();
 // then, initialize Navigation.
-const navigation = new Navigation(stores);
+const navigation = new Navigation(stores, false);
 // Adapt data provided by server.
 const data =
   document.currentScript &&
