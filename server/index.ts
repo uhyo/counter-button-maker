@@ -16,14 +16,18 @@ nunjucks.configure('server/views', {
 
 // Serve build result files.
 app.use('/assets', express.static('dist'));
+// Also static files.
+app.use('/static', express.static('static'));
 
 app.get('*', (req, res, next) => {
   // render page.
   render(req.path)
-    .then(({ title, content, page, count }) => {
+    .then(({ title, content, styleTags, page, count }) => {
       res.render('app', {
         title,
         content,
+        styleTags,
+        css: manifest['app.css'],
         bundle: manifest['app.js'],
         data: { page, count },
       });

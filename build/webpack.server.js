@@ -25,4 +25,5 @@ module.exports = Object.assign({}, base, {
       }
     },
   ],
+  plugins: [],
 });

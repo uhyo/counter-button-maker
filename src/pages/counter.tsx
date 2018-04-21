@@ -72,7 +72,7 @@ class PageWrapperInner extends React.Component<
   }
 }
 const PageWrapper = styled(PageWrapperInner)`
-  background: ${({ background }) =>
+  background-image: ${({ background }) =>
     background == null
       ? 'none'
       : background.type === 'image'
