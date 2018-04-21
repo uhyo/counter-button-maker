@@ -16,6 +16,13 @@ export interface CounterPageData {
    */
   content: CounterPageContent;
 }
+/**
+ * Data of new counter page.
+ */
+export interface NewPageData {
+  page: 'new';
+}
+
 export type BackgroundDef =
   | {
       type: 'gradient';
@@ -66,4 +73,4 @@ export interface CounterPageContent {
 /**
  * One of the pages.
  */
-export type PageData = TopPageData | CounterPageData;
+export type PageData = TopPageData | NewPageData | CounterPageData;

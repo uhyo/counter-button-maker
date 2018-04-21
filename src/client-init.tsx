@@ -7,19 +7,21 @@ import * as firebase from 'firebase';
 
 import '../css/app.css';
 import { handleError } from './logic/error';
+import { firebaseApp } from './logic/firebase';
 
 const appArea = document.getElementById('app');
 
 // first, make stores.
 const stores = makeStores();
 // init firebase.
-const firebaseApp = (window as any).__firebaseApp__ as firebase.app.App;
-firebaseApp.firestore().settings({
-  timestampsInSnapshots: true,
-});
+firebaseApp()
+  .firestore()
+  .settings({
+    timestampsInSnapshots: true,
+  });
 const runtime = {
   stores,
-  firebase: firebaseApp,
+  firebase: firebaseApp(),
 };
 // then, initialize Navigation.
 const navigation = new Navigation(runtime, false);
@@ -29,7 +31,7 @@ const data =
   JSON.parse(document.currentScript.getAttribute('data-data') || 'null');
 stores.page.updatePage(null, data.params, data.page, null);
 stores.counter.updateCount(data.count);
-hydrate(<App stores={stores} />, appArea);
+hydrate(<App stores={stores} navigation={navigation} />, appArea);
 
 // Navigate using location.
 navigation.initFromLocation().catch(handleError);

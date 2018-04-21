@@ -6,7 +6,7 @@ import styled from 'styled-components';
 export const MainContent = styled.section`
   background-color: rgba(255, 255, 255, 0.7);
   border-radius: 2em;
-  padding: 1em 4em 2em;
+  padding: 1em 4em 1px;
 
   color: black;
   text-align: center;

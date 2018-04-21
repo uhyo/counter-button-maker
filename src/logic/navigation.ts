@@ -1,7 +1,12 @@
 import { fetchCounterPageContent } from './counter';
 import { history } from './history';
 import { handleError } from './error';
-import { PageData, CounterPageData } from '../defs/page';
+import {
+  PageData,
+  CounterPageData,
+  TopPageData,
+  NewPageData,
+} from '../defs/page';
 import { serviceName } from '../defs/service';
 import { Router } from '../layout/router';
 import { Routing, Route } from './routing';
@@ -13,18 +18,32 @@ import {
 import { Stores } from '../store';
 import { Runtime } from '../defs/runtime';
 
+/**
+ * Flag for history update.
+ */
+type HistoryUpdate = 'push' | 'replace' | 'none';
 export class Navigation {
   protected router: Routing;
+  protected historyUnlisten: any;
   constructor(protected runtime: Runtime, public readonly server: boolean) {
     const {
       stores: { counter: counterStore },
     } = runtime;
     // Construct a router.
     const router = (this.router = new Routing());
-    router.add('/', {
+    router.add<{}, TopPageData, void>('/', {
       beforeMove: async () => {
         return {
           page: 'top',
+        };
+      },
+      beforeEnter: async () => {},
+      beforeLeave: async () => {},
+    });
+    router.add<{}, NewPageData, void>('/new', {
+      beforeMove: async () => {
+        return {
+          page: 'new',
         };
       },
       beforeEnter: async () => {},
@@ -65,11 +84,47 @@ export class Navigation {
         },
       },
     );
+    this.initHistory();
+  }
+  /**
+   * Init history object if available.
+   */
+  protected initHistory(): void {
+    if (history != null) {
+      this.historyUnlisten = history.listen(async (location, action) => {
+        if (action === 'POP') {
+          // It is pop.
+          const pathname = location.pathname;
+          const obj = location.state;
+          if (obj == null) {
+            // ???
+            this.move(location.pathname, 'none');
+            return;
+          }
+          // Reuse params and pagedata.
+          const { page } = obj;
+          // Re-route.
+          const res = this.router.route(pathname);
+          if (res == null) {
+            // ???
+            this.move(location.pathname, 'none');
+            return;
+          }
+          // bypass beforemove.
+          const state = await res.route.beforeEnter(
+            this.runtime,
+            res.params,
+            page,
+          );
+          this.navigate(res.route, res.params, page, state, 'none');
+        }
+      });
+    }
   }
   /**
    * Move to given path.
    */
-  public async move(pathname: string) {
+  public async move(pathname: string, historyFlag: HistoryUpdate) {
     const { runtime } = this;
     const {
       stores: { page: pageStore },
@@ -84,14 +139,14 @@ export class Navigation {
     const res = this.router.route(pathname);
     if (res == null) {
       // TODO
-      this.navigate(null, {}, null, null, true);
+      this.navigate(null, {}, null, null, 'replace');
       return;
     }
     const route = res.route;
     const page = await route.beforeMove(runtime, res.params);
     const state = await route.beforeEnter(runtime, res.params, page);
 
-    this.navigate(route, res.params, page, state, true);
+    this.navigate(route, res.params, page, state, historyFlag);
   }
 
   /**
@@ -101,7 +156,7 @@ export class Navigation {
   public async initFromLocation() {
     const { pathname } = location;
 
-    await this.move(pathname);
+    await this.move(pathname, 'replace');
   }
 
   /**
@@ -121,16 +176,16 @@ export class Navigation {
     params: Params,
     page: PageData | null,
     state: State,
-    replace: boolean,
+    historyFlag: HistoryUpdate,
   ): Promise<void> {
     // update history.
     if (history != null) {
       if (page != null) {
         const { path, title } = getHistoryInfo(page);
-        if (replace) {
-          history.replace(path, page);
-        } else {
-          history.push(path, page);
+        if (historyFlag === 'replace') {
+          history.replace(path, { params, page });
+        } else if (historyFlag === 'push') {
+          history.push(path, { params, page });
         }
         document.title = title;
       }
@@ -155,6 +210,10 @@ export class Navigation {
         )
         .catch(handleError);
     }
+    // Clean up history listening.
+    if (this.historyUnlisten != null) {
+      this.historyUnlisten();
+    }
   }
 }
 
@@ -176,6 +235,12 @@ export function getHistoryInfo(page: PageData): HistoryInfo {
     case 'top': {
       return {
         path: '/',
+        title: serviceName,
+      };
+    }
+    case 'new': {
+      return {
+        path: '/new',
         title: serviceName,
       };
     }

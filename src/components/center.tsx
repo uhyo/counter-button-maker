@@ -26,4 +26,5 @@ const Wrapper = styled.div`
 
 const Child = styled.div`
   max-width: 90%;
+  min-width: 55%;
 `;

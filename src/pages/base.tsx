@@ -10,3 +10,10 @@ export const PageWrapperBase = styled.div`
   background-size: cover;
   background-position: center;
 `;
+
+/**
+ * Page wrapper with default background.
+ */
+export const NormalPageWrapper = styled(PageWrapperBase)`
+  background: url(/static/back.jpg);
+`;

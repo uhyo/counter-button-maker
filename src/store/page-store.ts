@@ -27,4 +27,9 @@ export class PageStore {
     this.state = state;
     this.route = route;
   }
+
+  @action
+  public updatePageOnly(page: PageData | null) {
+    this.page = page;
+  }
 }
