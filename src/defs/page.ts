@@ -30,6 +30,10 @@ export type BackgroundDef =
 
 export interface CounterPageContent {
   /**
+   * Id of firestore document.
+   */
+  docid: string;
+  /**
    * Id of this counter.
    */
   id: string;

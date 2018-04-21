@@ -19,6 +19,9 @@ export function fetchCounterPageContent(
       return null;
     }
     const doc = snapshot.docs[0];
-    return doc.data() as CounterPageContent;
+    return {
+      docid: doc.id,
+      ...doc.data(),
+    } as CounterPageContent;
   });
 }

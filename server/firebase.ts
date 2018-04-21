@@ -9,5 +9,6 @@ const account = JSON.parse(
 );
 // Initialize firebase admin SDK.
 export const firebaseApp = (admin.initializeApp({
+  ...config.get('firebase'),
   credential: admin.credential.cert(account),
 }) as any) as firebase.app.App;
