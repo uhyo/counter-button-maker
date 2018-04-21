@@ -3,6 +3,7 @@ import { renderToString } from 'react-dom/server';
 import { App } from './index';
 import { Navigation, getHistoryInfo } from './logic/navigation';
 import { makeStores } from './store';
+import { PageData } from './defs/page';
 
 export interface RenderResult {
   /**
@@ -13,6 +14,18 @@ export interface RenderResult {
    * content HTML.
    */
   content: string;
+  /**
+   * page params.
+   */
+  params: Record<string, string>;
+  /**
+   * Page info for stores.
+   */
+  page: PageData | null;
+  /**
+   * Count store data.
+   */
+  count: number;
 }
 /**
  * Server-side rendering of requested page.
@@ -22,18 +35,23 @@ export async function render(pathname: string): Promise<RenderResult> {
   const nav = new Navigation(stores);
   await nav.move(pathname);
   const content = renderToString(<App stores={stores} />);
-  // ページ情報
-  const page = nav.getCurrentPage();
+  const { params, page } = stores.page;
   if (page == null) {
     // TODO
     return {
       title: '404',
       content,
+      params,
+      page,
+      count: stores.counter.count,
     };
   }
   const { title } = getHistoryInfo(page);
   return {
     title,
     content,
+    params,
+    page,
+    count: stores.counter.count,
   };
 }

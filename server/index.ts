@@ -20,8 +20,13 @@ app.use('/assets', express.static('dist'));
 app.get('*', (req, res, next) => {
   // render page.
   render(req.path)
-    .then(({ title, content }) => {
-      res.render('app', { title, content, bundle: manifest['app.js'] });
+    .then(({ title, content, page, count }) => {
+      res.render('app', {
+        title,
+        content,
+        bundle: manifest['app.js'],
+        data: { page, count },
+      });
     })
     .catch(next);
 });
