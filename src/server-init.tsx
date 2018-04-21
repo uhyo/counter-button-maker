@@ -5,6 +5,7 @@ import { App } from './index';
 import { Navigation, getHistoryInfo } from './logic/navigation';
 import { makeStores } from './store';
 import { PageData } from './defs/page';
+import { firebaseApp } from '../server/firebase';
 
 export interface RenderResult {
   /**
@@ -36,8 +37,12 @@ export interface RenderResult {
 export async function render(pathname: string): Promise<RenderResult> {
   // Initialize store for this rendering.
   const stores = makeStores();
+  const runtime = {
+    stores,
+    firebase: firebaseApp,
+  };
   // Simulate navigation to given path.
-  const nav = new Navigation(stores, true);
+  const nav = new Navigation(runtime, true);
   await nav.move(pathname);
   // Prepare server-side rendering support by styled-components.
   const sheet = new ServerStyleSheet();

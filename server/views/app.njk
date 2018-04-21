@@ -9,6 +9,15 @@
   </head>
   <body>
     <div id="app">{{content | safe}}</div>
+    <!-- Initialize firebase -->
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-firestore.js"></script>
+    <script data-firebase="{{firebaseConfig | dump}}">
+      (function() {
+        const config = JSON.parse(document.currentScript.dataset.firebase);
+        window.__firebaseApp__ = firebase.initializeApp(config);
+      })();
+    </script>
     <script src="{{bundle}}" data-data="{{data | dump}}"></script>
   </body>
 </html>

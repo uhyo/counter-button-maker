@@ -10,4 +10,8 @@ module.exports = Object.assign({}, base, {
     }),
     new WebpackManifestPlugin(),
   ]),
+  externals: [
+    // Take firebase from global.
+    'firebase',
+  ],
 });

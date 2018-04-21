@@ -1,23 +1,24 @@
 import { CounterPageContent } from '../../defs/page';
+import { Runtime } from '../../defs/runtime';
 
 /**
  * Fetch data of counter page.
  */
 export function fetchCounterPageContent(
+  runtime: Runtime,
   id: string,
-): Promise<CounterPageContent> {
+): Promise<CounterPageContent | null> {
   // tmp
-  return Promise.resolve<CounterPageContent>({
-    id,
-    title: 'にゃんぱすーボタン',
-    description:
-      'にゃんぱすーをシェアできる全く新しい画期的なWEBサービスですのん',
-    buttonLabel: 'にゃんぱすー',
-    buttonBg: '#c8c0da',
-    buttonColor: '#796bae',
-    background: {
-      type: 'image',
-      url: '/static/back.jpg',
-    },
+  const firestore = runtime.firebase.firestore();
+  const pages = firestore.collection('pages');
+  const query = pages.where('id', '==', id).limit(1);
+  return query.get().then<CounterPageContent | null>(snapshot => {
+    if (snapshot.empty) {
+      // Not found!
+      // TODO
+      return null;
+    }
+    const doc = snapshot.docs[0];
+    return doc.data() as CounterPageContent;
   });
 }

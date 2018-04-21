@@ -30,6 +30,7 @@ app.get('*', (req, res, next) => {
         css: manifest['app.css'],
         bundle: manifest['app.js'],
         data: { page, count },
+        firebaseConfig: config.get<any>('firebase'),
       });
     })
     .catch(next);

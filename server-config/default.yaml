@@ -1,3 +1,6 @@
 # Application server
 server:
   port: 8080
+firebase: "firebase config here"
+# Path to firebase service account key for admin SDK.
+firebaseAdminKey: "path/to/key.json"

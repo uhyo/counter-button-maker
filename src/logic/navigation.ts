@@ -11,11 +11,14 @@ import {
   CounterStream,
 } from './counter/stream';
 import { Stores } from '../store';
+import { Runtime } from '../defs/runtime';
 
 export class Navigation {
   protected router: Routing;
-  constructor(protected stores: Stores, public readonly server: boolean) {
-    const { counter: counterStore } = stores;
+  constructor(protected runtime: Runtime, public readonly server: boolean) {
+    const {
+      stores: { counter: counterStore },
+    } = runtime;
     // Construct a router.
     const router = (this.router = new Routing());
     router.add('/', {
@@ -30,15 +33,19 @@ export class Navigation {
     router.add<{ id: string }, CounterPageData, { stream: CounterStream }>(
       '/:id([-_a-zA-Z0-9]{4,})',
       {
-        beforeMove: async ({ id }) => {
+        beforeMove: async (runtime, { id }) => {
           // Fetch page data for it.
-          const content = await fetchCounterPageContent(id);
+          const content = await fetchCounterPageContent(runtime, id);
+          if (content == null) {
+            // TODO What!? not found!
+            throw new Error('Page not found');
+          }
           return {
             page: 'counter',
             content,
           };
         },
-        beforeEnter: async ({ id }) => {
+        beforeEnter: async (_, { id }) => {
           // Prepare counter stream.
           const stream = makeCounterStream(id, this.server);
           stream.emitter.on('count', ({ count }: CounterEvent) => {
@@ -46,7 +53,7 @@ export class Navigation {
           });
           return { stream };
         },
-        beforeLeave: async (_, _2, { stream }) => {
+        beforeLeave: async (_, _1, _2, { stream }) => {
           // stop stream when leaving page.
           stream.close();
         },
@@ -57,12 +64,15 @@ export class Navigation {
    * Move to given path.
    */
   public async move(pathname: string) {
-    const { page: pageStore } = this.stores;
+    const { runtime } = this;
+    const {
+      stores: { page: pageStore },
+    } = runtime;
     // Clean up previous state.
     // It is intentionall non-blocking for fast loading of next page.
     if (pageStore.route != null) {
       pageStore.route
-        .beforeLeave(pageStore.params, pageStore.page, pageStore.state)
+        .beforeLeave(runtime, pageStore.params, pageStore.page, pageStore.state)
         .catch(handleError);
     }
     const res = this.router.route(pathname);
@@ -72,8 +82,8 @@ export class Navigation {
       return;
     }
     const route = res.route;
-    const page = await route.beforeMove(res.params);
-    const state = await route.beforeEnter(res.params, page);
+    const page = await route.beforeMove(runtime, res.params);
+    const state = await route.beforeEnter(runtime, res.params, page);
 
     this.navigate(route, res.params, page, state, true);
   }
@@ -119,17 +129,24 @@ export class Navigation {
         document.title = title;
       }
     }
-    this.stores.page.updatePage(route, params, page, state);
+    this.runtime.stores.page.updatePage(route, params, page, state);
   }
   /**
    * Close navigation.
    */
   public async close(): Promise<void> {
-    const { page: pageStore } = this.stores;
+    const {
+      stores: { page: pageStore },
+    } = this.runtime;
     // Clean up current page.
     if (pageStore.route != null) {
       pageStore.route
-        .beforeLeave(pageStore.params, pageStore.page, pageStore.state)
+        .beforeLeave(
+          this.runtime,
+          pageStore.params,
+          pageStore.page,
+          pageStore.state,
+        )
         .catch(handleError);
     }
   }

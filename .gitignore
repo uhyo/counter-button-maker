@@ -1,4 +1,5 @@
 /node_modules
 /dist
 /dist-server
-/server-config/local*
+/server-config/*
+!/server-config/default.*
