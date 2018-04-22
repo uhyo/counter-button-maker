@@ -18,6 +18,7 @@ import {
   MainContentDark,
   MainContentLight,
 } from '../components/main-content';
+import { phone } from '../components/media';
 import * as firebase from 'firebase';
 import { firebase as getFirebase, firebaseui } from '../logic/firebase';
 import { bind } from 'bind-decorator';
@@ -355,20 +356,24 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
               </Field>
             ) : null}
             <Field title="ボタンの背景色">
-              <ChromePicker
-                disableAlpha
-                color={buttonBg}
-                onChange={this.handleColorButtonBg}
-              />
+              <PickerWrapper>
+                <ChromePicker
+                  disableAlpha
+                  color={buttonBg}
+                  onChange={this.handleColorButtonBg}
+                />
+              </PickerWrapper>
             </Field>
             <Field title="ボタンの文字色">
-              <ChromePicker
-                disableAlpha
-                color={buttonColor}
-                onChange={this.handleColorButtonColor}
-              />
+              <PickerWrapper>
+                <ChromePicker
+                  disableAlpha
+                  color={buttonColor}
+                  onChange={this.handleColorButtonColor}
+                />
+              </PickerWrapper>
             </Field>
-            <Field title="ボタンID">
+            <Field title="ボタンID（省略可）">
               <TextField
                 name="id"
                 fullWidth
@@ -522,4 +527,11 @@ const Pickers = styled.div`
     flex: auto 0 0;
     margin: 0.8em;
   }
+`;
+const PickerWrapper = styled.div`
+  ${phone`
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+`};
 `;
