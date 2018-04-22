@@ -66,11 +66,7 @@ export class Navigation {
         },
         beforeEnter: async (runtime, { id }, page) => {
           // Prepare counter stream.
-          const stream = makeCounterStream(
-            page.content.docid,
-            runtime,
-            this.server,
-          );
+          const stream = makeCounterStream(id, runtime, this.server);
           const count = await stream.start();
           counterStore.updateCount(count);
           stream.emitter.on('count', ({ count }: CounterEvent) => {

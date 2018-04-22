@@ -7,6 +7,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import Checkbox from 'material-ui/Checkbox';
 import Divider from 'material-ui/Divider';
 import { List, ListItem } from 'material-ui/List';
+import LinearProgress from 'material-ui/LinearProgress';
 
 import { ChromePicker } from 'react-color';
 
@@ -27,6 +28,8 @@ import { NewStore } from '../store/new-store';
 import { observer } from 'mobx-react';
 import { withProps } from '../components/styled';
 import { Button } from '../components/button';
+import { Navigation } from '../logic/navigation';
+import { publishCounter, randomid } from '../logic/publish';
 
 export interface IStateNewPage {
   loading: boolean;
@@ -35,7 +38,12 @@ export interface IStateNewPage {
 /**
  * Render new counter page.
  */
-export class NewPage extends React.Component<{}, IStateNewPage> {
+export class NewPage extends React.Component<
+  {
+    navigation: Navigation;
+  },
+  IStateNewPage
+> {
   protected ui: any;
   protected unregisterObserver: any;
   public state = {
@@ -48,13 +56,17 @@ export class NewPage extends React.Component<{}, IStateNewPage> {
       <StoreConsumer>
         {({ new: newStore }) => (
           <PageWrapper forceDefault={user == null} newStore={newStore}>
-            <Centralize>
+            <Centralize maximize={user != null}>
               <MainContentLight>
                 <h1>ボタンを作成</h1>
                 {loading ? (
                   <p>読み込み中…</p>
                 ) : user != null ? (
-                  <UserUI user={user!} newStore={newStore} />
+                  <UserUI
+                    user={user!}
+                    newStore={newStore}
+                    navigation={this.props.navigation}
+                  />
                 ) : (
                   <p>
                     ボタンの作者を識別するために、以下のいずれかのアカウントでログインが必要です。ボタンのページに作者のアカウントは表示されません。
@@ -180,8 +192,12 @@ class PageWrapper extends React.Component<
 interface IPropUserUI {
   user: firebase.User;
   newStore: NewStore;
+  navigation: Navigation;
 }
-interface IStateUserUI {}
+interface IStateUserUI {
+  publishing: boolean;
+  error: string;
+}
 /**
  * UI for logged-in user.
  */
@@ -190,11 +206,16 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
   protected formRef: HTMLFormElement | null = null;
   constructor(props: IPropUserUI) {
     super(props);
-    this.state = {};
+    this.state = {
+      publishing: false,
+      error: '',
+    };
   }
   public render() {
     const { user, newStore } = this.props;
+    const { publishing, error } = this.state;
     const {
+      id,
       title,
       description,
       buttonLabel,
@@ -216,7 +237,7 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
               ログアウト
             </a>
           </LoginInfo>
-          <Form innerRef={e => (this.formRef = e)}>
+          <Form innerRef={e => (this.formRef = e)} onSubmit={this.handleSubmit}>
             <Field title="ページ名">
               <TextField
                 name="title"
@@ -225,6 +246,11 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
                 required
                 onChange={this.handleInputChange}
                 value={title}
+                errorText={
+                  title.length > 1024
+                    ? '1024文字以内で入力してください。'
+                    : null
+                }
               />
             </Field>
             <Field title="説明">
@@ -235,6 +261,13 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
                 hintText="ボタンの説明を入力"
                 onChange={this.handleInputChange}
                 value={description}
+                multiLine
+                rowsMax={5}
+                errorText={
+                  description.length > 1024
+                    ? '1024文字以内で入力してください。'
+                    : null
+                }
               />
             </Field>
             <Field title="ボタンの文字列">
@@ -245,6 +278,11 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
                 hintText="ボタンの文字列を入力"
                 onChange={this.handleInputChange}
                 value={buttonLabel}
+                errorText={
+                  buttonLabel.length > 128
+                    ? '128文字以内で入力してください。'
+                    : null
+                }
               />
             </Field>
             <Field title="背景">
@@ -330,8 +368,26 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
                 onChange={this.handleColorButtonColor}
               />
             </Field>
+            <Field title="ボタンID">
+              <TextField
+                name="id"
+                fullWidth
+                onChange={this.handleInputChange}
+                value={id}
+                floatingLabelText="ボタンIDはページのURLに使用されます。省略した場合はランダムに決められます。"
+                errorText={
+                  id && (id.length < 4 || id.length > 1024)
+                    ? '4文字以上1024文字以下で入力してください。'
+                    : id && !/^[-_a-zA-Z0-9]+$/.test(id)
+                      ? 'IDに使用可能な文字は半角英数とハイフンマイナス・アンダーバーのみです。'
+                      : null
+                }
+              />
+            </Field>
             <p>
               <Button
+                type="submit"
+                disabled={publishing}
                 style={{
                   backgroundColor: buttonBg,
                   color: buttonColor,
@@ -340,6 +396,13 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
                 作成
               </Button>
             </p>
+            {publishing ? (
+              <>
+                <p>ページを作成中……</p>
+                <LinearProgress />
+              </>
+            ) : null}
+            {error ? <ErrorInfo>{error}</ErrorInfo> : null}
           </Form>
         </div>
       </MuiThemeProvider>
@@ -406,14 +469,14 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
   protected handleUpload(e: React.SyntheticEvent<HTMLInputElement>): void {
     const file = e.currentTarget.files && e.currentTarget.files[0];
     if (file == null) {
-      this.setState({
+      this.props.newStore.update({
         backgroundImage: null,
       });
       return;
     }
     if (!/^image\/.+$/.test(file.type)) {
       // not image
-      this.setState({
+      this.props.newStore.update({
         backgroundImage: null,
       });
       return;
@@ -423,10 +486,32 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
       backgroundImage: file,
     });
   }
+  @bind
+  protected handleSubmit(e: React.SyntheticEvent<HTMLFormElement>): void {
+    e.preventDefault();
+    const id = this.props.newStore.id || randomid();
+    this.setState({
+      publishing: true,
+      error: '',
+    });
+    publishCounter(id, this.props.newStore)
+      .then(() => {
+        // yeah!
+        this.props.navigation.move(`/${id}`, 'push').catch(handleError);
+      })
+      .catch(err => {
+        this.setState({ publishing: false, error: String(err) });
+        handleError(err);
+      });
+  }
 }
 
 const LoginInfo = styled.p`
   text-align: right;
+`;
+const ErrorInfo = styled.p`
+  font-size: 0.9em;
+  color: red;
 `;
 
 const Pickers = styled.div`

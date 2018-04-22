@@ -4,6 +4,7 @@ import { observable, action } from 'mobx';
  * Store for newly creating a counter page.
  */
 export class NewStore {
+  @observable id: string = '';
   @observable public title: string = '';
   @observable public description: string = '';
   @observable public buttonLabel: string = '';
@@ -67,6 +68,7 @@ export class NewStore {
 export type UpdateQuery = Partial<
   Pick<
     NewStore,
+    | 'id'
     | 'title'
     | 'description'
     | 'buttonLabel'

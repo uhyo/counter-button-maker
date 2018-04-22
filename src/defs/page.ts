@@ -32,18 +32,20 @@ export type BackgroundDef =
   | {
       type: 'image';
       url: string;
+      timestamp: number;
+      repeat: boolean;
     }
   | null;
 
 export interface CounterPageContent {
   /**
-   * Id of firestore document.
-   */
-  docid: string;
-  /**
    * Id of this counter.
    */
   id: string;
+  /**
+   * userif of owner.
+   */
+  uid: string;
   /**
    * Title of page.
    */

@@ -11,17 +11,17 @@ export function fetchCounterPageContent(
   // tmp
   const firestore = runtime.firebase.firestore();
   const pages = firestore.collection('pages');
-  const query = pages.where('id', '==', id).limit(1);
-  return query.get().then<CounterPageContent | null>(snapshot => {
-    if (snapshot.empty) {
+  const doc = pages.doc(id);
+  return doc.get().then<CounterPageContent | null>(snapshot => {
+    const doc = snapshot.data();
+    if (!snapshot.exists || doc == null) {
       // Not found!
       // TODO
       return null;
     }
-    const doc = snapshot.docs[0];
     return {
-      docid: doc.id,
-      ...doc.data(),
+      id,
+      ...doc,
     } as CounterPageContent;
   });
 }
