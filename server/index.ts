@@ -1,11 +1,11 @@
+import * as fs from 'fs';
 import express from './express';
 import * as nunjucks from 'nunjucks';
 import * as config from 'config';
 import { render } from '../src/server-init';
 
 // Result of building client-side bundle.
-// This require is handled by webpack.
-const manifest = require('manifest.json');
+let manifest = JSON.parse(fs.readFileSync('./dist/manifest.json', 'utf8'));
 
 const app = express();
 app.set('view engine', 'njk');
@@ -20,6 +20,10 @@ app.use('/assets', express.static('dist'));
 app.use('/static', express.static('static'));
 
 app.get('*', (req, res, next) => {
+  if (process.env.NODE_ENV !== 'production') {
+    // Reload manifest.json every time.
+    manifest = JSON.parse(fs.readFileSync('./dist/manifest.json', 'utf8'));
+  }
   // render page.
   render(req.path)
     .then(({ title, content, styleTags, page, count }) => {

@@ -1,15 +1,21 @@
 import * as React from 'react';
 import styled from 'styled-components';
+import { withProps } from './styled';
 
 /**
  * Component which centralizes its content.
  */
-export class Centralize extends React.PureComponent {
+export class Centralize extends React.PureComponent<
+  {
+    maximize?: boolean;
+  },
+  {}
+> {
   public render() {
-    const { children } = this.props;
+    const { children, maximize } = this.props;
     return (
       <Wrapper>
-        <Child>{children}</Child>
+        <Child maximize={maximize}>{children}</Child>
       </Wrapper>
     );
   }
@@ -17,14 +23,15 @@ export class Centralize extends React.PureComponent {
 
 const Wrapper = styled.div`
   width: 100%;
-  height: 100%;
+  height: 100vh;
+  box-sizing: border-box;
   display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
 `;
 
-const Child = styled.div`
-  max-width: 90%;
-  min-width: 55%;
+const Child = withProps<{
+  maximize?: boolean;
+}>()(styled.div)`
+  margin: auto;
+  max-width: 95%;
+  min-width: ${props => (props.maximize ? '95%' : '60%')};
 `;

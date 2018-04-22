@@ -7,6 +7,7 @@ export const MainContent = styled.section`
   background-color: rgba(255, 255, 255, 0.7);
   border-radius: 2em;
   padding: 1em 4em 1px;
+  margin: 2em 0;
 
   color: black;
   text-align: center;
@@ -22,5 +23,23 @@ export const MainContent = styled.section`
     h1 {
       font-size: 1.3em;
     }
+  }
+`;
+
+/**
+ * Lighter theme.
+ */
+export const MainContentLight = styled(MainContent)`
+  background-color: rgba(255, 255, 255, 0.9);
+`;
+/**
+ * Dark theme.
+ */
+export const MainContentDark = styled(MainContent)`
+  background-color: rgba(0, 0, 0, 0.63);
+  color: white;
+
+  a {
+    color: #ffcc99;
   }
 `;

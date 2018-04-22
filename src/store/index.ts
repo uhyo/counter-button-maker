@@ -1,5 +1,6 @@
 import { CounterStore } from './counter-store';
 import { PageStore } from './page-store';
+import { NewStore } from './new-store';
 export {
   Provider as StoreProvider,
   Consumer as StoreConsumer,
@@ -8,6 +9,7 @@ export {
 export interface Stores {
   counter: CounterStore;
   page: PageStore;
+  new: NewStore;
 }
 
 /**
@@ -17,5 +19,6 @@ export function makeStores(): Stores {
   return {
     counter: new CounterStore(),
     page: new PageStore(),
+    new: new NewStore(),
   };
 }

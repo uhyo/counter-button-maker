@@ -5,15 +5,16 @@ import styled from 'styled-components';
  */
 export const PageWrapperBase = styled.div`
   width: 100%;
-  height: 100%;
-  position: absolute;
+  height: 100vh;
   background-size: cover;
   background-position: center;
+  background-attachment: fixed;
+  overflow-y: auto;
 `;
 
 /**
  * Page wrapper with default background.
  */
 export const NormalPageWrapper = styled(PageWrapperBase)`
-  background: url(/static/back.jpg);
+  background-image: url(/static/back.jpg);
 `;
