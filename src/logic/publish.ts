@@ -60,6 +60,15 @@ export async function publishCounter(id: string, content: NewStore) {
   const ref = database.ref(`counters/${id}`);
   await ref.set(0);
   console.log('counter is initialized');
+  const ref2 = database.ref('top');
+  // lastly, increment database number
+  ref2.transaction((count: number | null) => {
+    if (count == null) {
+      return 1;
+    } else {
+      return count + 1;
+    }
+  });
 }
 
 /**

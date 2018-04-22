@@ -31,14 +31,27 @@ export class Navigation {
     } = runtime;
     // Construct a router.
     const router = (this.router = new Routing());
-    router.add<{}, TopPageData, void>('/', {
+    router.add<{}, TopPageData, { stream: CounterStream }>('/', {
       beforeMove: async () => {
         return {
           page: 'top',
         };
       },
-      beforeEnter: async () => {},
-      beforeLeave: async () => {},
+      beforeEnter: async (runtime, _, _1) => {
+        // Prepare counter stream.
+        const stream = makeCounterStream('/top', runtime, this.server);
+        const count = await stream.start();
+        counterStore.updateCount(count);
+        stream.emitter.on('count', ({ count }: CounterEvent) => {
+          counterStore.updateCount(count);
+        });
+        return { stream };
+      },
+
+      beforeLeave: async (_, _1, _2, { stream }) => {
+        // stop stream when leaving page.
+        stream.close();
+      },
     });
     router.add<{}, NewPageData, void>('/new', {
       beforeMove: async () => {
@@ -66,7 +79,11 @@ export class Navigation {
         },
         beforeEnter: async (runtime, { id }, page) => {
           // Prepare counter stream.
-          const stream = makeCounterStream(id, runtime, this.server);
+          const stream = makeCounterStream(
+            `/counters/${id}`,
+            runtime,
+            this.server,
+          );
           const count = await stream.start();
           counterStore.updateCount(count);
           stream.emitter.on('count', ({ count }: CounterEvent) => {

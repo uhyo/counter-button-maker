@@ -31,6 +31,7 @@ import { withProps } from '../components/styled';
 import { Button } from '../components/button';
 import { Navigation } from '../logic/navigation';
 import { publishCounter, randomid } from '../logic/publish';
+import { Link } from '../components/link';
 
 export interface IStateNewPage {
   loading: boolean;
@@ -213,7 +214,7 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
     };
   }
   public render() {
-    const { user, newStore } = this.props;
+    const { user, newStore, navigation } = this.props;
     const { publishing, error } = this.state;
     const {
       id,
@@ -408,6 +409,12 @@ class UserUI extends React.Component<IPropUserUI, IStateUserUI> {
               </>
             ) : null}
             {error ? <ErrorInfo>{error}</ErrorInfo> : null}
+            <Divider />
+            <LoginInfo>
+              <Link href="/" navigation={navigation}>
+                トップページに戻る
+              </Link>
+            </LoginInfo>
           </Form>
         </div>
       </MuiThemeProvider>

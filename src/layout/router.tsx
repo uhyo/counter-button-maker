@@ -32,7 +32,7 @@ export class Router extends React.Component<IPropRouter, {}> {
         return <NewPage navigation={navigation} />;
       }
       case 'counter': {
-        return <CounterPage content={page.content} />;
+        return <CounterPage content={page.content} navigation={navigation} />;
       }
     }
   }

@@ -81,7 +81,7 @@ export class FirebaseStream extends CounterStream {
   }
   public async start(): Promise<number> {
     // Initialize connection to realtime database.
-    const ref = this.database.ref(`/counters/${this.id}`);
+    const ref = this.database.ref(this.id);
     this.ref = ref;
     if (this.server) {
       // fetch just once.

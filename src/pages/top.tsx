@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { PageWrapperBase, NormalPageWrapper } from './base';
 import { serviceName, serviceDescription } from '../defs/service';
-import { Button } from '../components/button';
+import { Button, TweetButton } from '../components/button';
 import { Centralize } from '../components/center';
 import { MainContent } from '../components/main-content';
 import { CounterValue } from '../components/counter';
@@ -41,7 +41,24 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
             </StoreConsumer>
             <p>
               <Button onClick={this.handleNewClick}>ボタンを作る</Button>
+              <TweetButton onClick={this.handleTweet}>ツイート</TweetButton>
             </p>
+            <SmallNotes>
+              ボタンを押すと数が増えるという全く新しい画期的なWebサービスを1分で作って公開できる全く新しい画期的なWebサービスを簡単に複製して公開できるサービスはこちら
+              →
+              <a
+                href="https://github.com/uhyo/counter-button-maker"
+                target="_blank"
+              >
+                GitHub
+              </a>
+            </SmallNotes>
+            <SmallNotes>
+              作者のツイッターアカウントはこちら →
+              <a href="https://twitter.com/uhyo_" target="_blank">
+                Twitter
+              </a>
+            </SmallNotes>
           </MainContent>
         </Centralize>
       </NormalPageWrapper>
@@ -51,8 +68,22 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
   protected handleNewClick(): void {
     this.props.navigation.move('/new', 'push').catch(handleError);
   }
+  protected handleTweet(): void {
+    window.open(
+      'https://twitter.com/intent/tweet?text=' +
+        encodeURIComponent(serviceName) +
+        '&url=' +
+        encodeURIComponent(location.href),
+      '',
+      'width=650, height=450, menuber=no, toolbar=no, scrollbars=yes',
+    );
+  }
 }
 
 const Description = styled.p`
   font-weight: bold;
+`;
+
+const SmallNotes = styled.p`
+  font-size: 0.8em;
 `;

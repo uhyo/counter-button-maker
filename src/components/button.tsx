@@ -6,6 +6,7 @@ import styled from 'styled-components';
  */
 export const Button = styled.button`
   appearance: none;
+  margin: 0 0.6em;
   border: none;
   border-radius: 6px;
 
@@ -14,4 +15,17 @@ export const Button = styled.button`
   font-weight: bold;
   font-size: 1em;
   padding: 1em;
+`;
+
+/**
+ * Tweet button.
+ */
+export const TweetButton = styled(Button)`
+  background-color: #55acee;
+  color: white;
+  font-weight: bold;
+`;
+
+export const TweetButtonSlim = styled(TweetButton)`
+  padding: 0.45em 1em;
 `;

@@ -12,11 +12,15 @@ import { Centralize } from '../components/center';
 import { MainContent } from '../components/main-content';
 import { CounterValue } from '../components/counter';
 import { PageStore } from '../store/page-store';
-import { Button } from '../components/button';
+import { Button, TweetButtonSlim } from '../components/button';
 import styled from 'styled-components';
+import { Navigation } from '../logic/navigation';
+import { Link } from '../components/link';
+import { serviceName } from '../defs/service';
 
 export interface IPropCounterPage {
   content: CounterPageContent;
+  navigation: Navigation;
 }
 @observer
 export class CounterPage extends React.Component<IPropCounterPage, {}> {
@@ -30,6 +34,7 @@ export class CounterPage extends React.Component<IPropCounterPage, {}> {
         buttonBg,
         buttonColor,
       },
+      navigation,
     } = this.props;
     return (
       <PageWrapper background={background}>
@@ -49,6 +54,16 @@ export class CounterPage extends React.Component<IPropCounterPage, {}> {
                       {buttonLabel}
                     </IncrementButton>
                   </p>
+                  <About>
+                    <TweetButtonSlim onClick={this.handleTweet}>
+                      ツイート
+                    </TweetButtonSlim>
+                  </About>
+                  <About>
+                    {title} ver 1.0 [<Link href="/" navigation={navigation}>
+                      ABOUT
+                    </Link>]
+                  </About>
                 </>
               )}
             </StoreConsumer>
@@ -57,7 +72,24 @@ export class CounterPage extends React.Component<IPropCounterPage, {}> {
       </PageWrapper>
     );
   }
+  @bind
+  protected handleTweet(): void {
+    window.open(
+      'https://twitter.com/intent/tweet?text=' +
+        encodeURIComponent(`${this.props.content.title} #${serviceName}\n`) +
+        '&url=' +
+        encodeURIComponent(location.href),
+      '',
+      'width=650, height=450, menuber=no, toolbar=no, scrollbars=yes',
+    );
+  }
 }
+
+const About = styled.p`
+  margin-bottom: 4px;
+  font-size: smaller;
+  text-align: right;
+`;
 
 class PageWrapperInner extends React.Component<
   {
