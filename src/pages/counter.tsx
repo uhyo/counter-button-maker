@@ -7,7 +7,7 @@ import {
   BackgroundDef,
 } from '../defs/page';
 import { StoreConsumer } from '../store';
-import { PageWrapperBase } from './base';
+import { PageWrapperBase, PageWrapper } from './base';
 import { Centralize } from '../components/center';
 import { MainContent } from '../components/main-content';
 import { CounterValue } from '../components/counter';
@@ -71,14 +71,6 @@ class PageWrapperInner extends React.Component<
     return <PageWrapperBase className={className}>{children}</PageWrapperBase>;
   }
 }
-const PageWrapper = styled(PageWrapperInner)`
-  background-image: ${({ background }) =>
-    background == null
-      ? 'none'
-      : background.type === 'image'
-        ? `url(${background.url})`
-        : `linar-gradient(to bottom, ${background.from}, ${background.to})`};
-`;
 
 interface IPropIncremenButton {
   pageStore: PageStore;

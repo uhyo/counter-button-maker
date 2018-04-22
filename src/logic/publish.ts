@@ -11,6 +11,7 @@ export async function publishCounter(id: string, content: NewStore) {
   if (user == null) {
     throw new Error('ログインしていません');
   }
+  console.log('id:', id);
   const db = fb.firestore();
   const doc = db.collection('pages').doc(id);
   let backgroundDef: BackgroundDef;
@@ -71,9 +72,9 @@ export function randomid(): string {
     bytes.push(String.fromCharCode(Math.floor(Math.random() * 256)));
   }
   return btoa(bytes.join(''))
-    .replace('+', '-')
-    .replace('/', '_')
-    .replace('=', '');
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
 }
 
 // convert 3-digit hex color to 6-digit one.
