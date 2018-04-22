@@ -6,10 +6,11 @@
   "scripts": {
     "precommit": "lint-staged",
     "build": "webpack-cli --config build/webpack.config.js",
+    "production-build": "NODE_ENV=production webpack-cli --config build/webpack.config.js",
     "watch": "webpack-cli --watch --config build/webpack.config.js",
     "dev": "NODE_CONFIG_DIR=server-config/ webpack-serve --config build/webpack.config.js",
     "start": "NODE_CONFIG_DIR=server-config/ node dist-server/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clean": "rimraf dist dist-server"
   },
   "lint-staged": {
     "*.{css,js,json,ts,tsx}": [
@@ -39,10 +40,12 @@
     "mini-css-extract-plugin": "^0.4.0",
     "npm-run-all": "^4.1.2",
     "prettier": "^1.12.0",
+    "rimraf": "^2.6.2",
     "style-loader": "^0.21.0",
     "ts-loader": "^4.2.0",
     "typescript": "^2.8.1",
     "webpack": "^4.5.0",
+    "webpack-bundle-analyzer": "^2.11.1",
     "webpack-cli": "^2.0.14",
     "webpack-manifest-plugin": "^2.0.1",
     "webpack-node-externals": "^1.7.2",

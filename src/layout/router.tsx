@@ -7,6 +7,8 @@ import { CounterPage } from '../pages/counter';
 import { PageStore } from '../store/page-store';
 import { Navigation } from '../logic/navigation';
 
+import * as firebase from 'firebase';
+
 export interface IPropRouter {
   pageStore: PageStore;
   navigation: Navigation;
