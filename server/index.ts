@@ -26,15 +26,49 @@ app.get('*', (req, res, next) => {
   }
   // render page.
   render(req.path)
-    .then(({ title, content, styleTags, page, count }) => {
+    .then(({ historyInfo, content, styleTags, page, count }) => {
       res.render('app', {
-        title,
+        title: historyInfo.title,
         content,
         styleTags,
         css: manifest['app.css'],
         bundle: manifest['app.js'],
         data: { page, count },
         firebaseConfig: config.get<any>('firebase'),
+        meta: [
+          // opengraph stuff
+          {
+            property: 'og:title',
+            content: historyInfo.title,
+          },
+          {
+            property: 'og:description',
+            content: historyInfo.social.description,
+          },
+          {
+            property: 'og:type',
+            content: 'website',
+          },
+          {
+            property: 'og:url',
+            content: config.get('server.origin') + historyInfo.path,
+          },
+          {
+            property: 'og:image',
+            content:
+              historyInfo.social.image[0] === '/'
+                ? config.get('server.origin') + historyInfo.social.image
+                : historyInfo.social.image,
+          },
+          {
+            name: 'twitter:card',
+            content: historyInfo.social.image ? 'summary_large_image' : '',
+          },
+          {
+            name: 'twitter:creator',
+            content: historyInfo.social.twitterCreator || '',
+          },
+        ],
       });
     })
     .catch(next);

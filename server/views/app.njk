@@ -6,6 +6,13 @@
     <meta name="viewport" content="initial-scale=1,width=device-width">
     <link rel="stylesheet" href="{{css}}">
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/2.5.1/firebaseui.css" />
+    {% for m in meta %}
+      {% if m.property %}
+        <meta property="{{m.property}}" content="{{m.content}}">
+      {% else %}
+        <meta name="{{m.name}}" content="{{m.content}}">
+      {% endif %}
+    {% endfor %}
     {{styleTags | safe}}
   </head>
   <body>

@@ -7,7 +7,7 @@ import {
   TopPageData,
   NewPageData,
 } from '../defs/page';
-import { serviceName } from '../defs/service';
+import { serviceName, serviceDescription } from '../defs/service';
 import { Router } from '../layout/router';
 import { Routing, Route } from './routing';
 import {
@@ -230,7 +230,7 @@ export class Navigation {
   }
 }
 
-interface HistoryInfo {
+export interface HistoryInfo {
   /**
    * Path of this page.
    */
@@ -239,6 +239,14 @@ interface HistoryInfo {
    * Title for this page.
    */
   title: string;
+  /**
+   * Social things.
+   */
+  social: {
+    image: string;
+    description: string;
+    twitterCreator: string | null;
+  };
 }
 /**
  * Get history information of given page.
@@ -249,18 +257,40 @@ export function getHistoryInfo(page: PageData): HistoryInfo {
       return {
         path: '/',
         title: serviceName,
+        social: {
+          image: '/static/card.jpg',
+          description: serviceDescription,
+          // XXX ad-hoc
+          twitterCreator: '@uhyo_',
+        },
       };
     }
     case 'new': {
       return {
         path: '/new',
         title: serviceName,
+        social: {
+          image: '/static/card.jpg',
+          description: serviceDescription,
+          // XXX ad-hoc
+          twitterCreator: '@uhyo_',
+        },
       };
     }
     case 'counter': {
       return {
         path: `/${page.content.id}`,
         title: page.content.title,
+        social: {
+          image:
+            page.content.background == null
+              ? '/static/back.jpg'
+              : page.content.background.type === 'gradient'
+                ? ''
+                : page.content.background.url,
+          description: page.content.description,
+          twitterCreator: null,
+        },
       };
     }
   }

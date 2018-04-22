@@ -2,16 +2,16 @@ import * as React from 'react';
 import { renderToString } from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { App } from './index';
-import { Navigation, getHistoryInfo } from './logic/navigation';
+import { Navigation, getHistoryInfo, HistoryInfo } from './logic/navigation';
 import { makeStores } from './store';
 import { PageData } from './defs/page';
 import { firebaseApp } from '../server/firebase';
 
 export interface RenderResult {
   /**
-   * Title of page.
+   * Title and other infojj
    */
-  title: string;
+  historyInfo: HistoryInfo;
   /**
    * content HTML.
    */
@@ -57,7 +57,15 @@ export async function render(pathname: string): Promise<RenderResult> {
   if (page == null) {
     // TODO
     return {
-      title: '404',
+      historyInfo: {
+        path: '',
+        title: '404',
+        social: {
+          image: '',
+          description: '',
+          twitterCreator: null,
+        },
+      },
       content,
       styleTags,
       params,
@@ -65,9 +73,8 @@ export async function render(pathname: string): Promise<RenderResult> {
       count: stores.counter.count,
     };
   }
-  const { title } = getHistoryInfo(page);
   return {
-    title,
+    historyInfo: getHistoryInfo(page),
     content,
     styleTags,
     params,
