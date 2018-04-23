@@ -19,6 +19,7 @@ import {
 } from './counter/stream';
 import { Stores } from '../store';
 import { Runtime } from '../defs/runtime';
+import { toJS } from 'mobx';
 
 /**
  * Flag for history update.
@@ -38,9 +39,11 @@ export class Navigation {
     // Construct a router.
     const router = (this.router = new Routing());
     router.add<{}, TopPageData, { stream: CounterStream }>('/', {
-      beforeMove: async () => {
+      beforeMove: async runtime => {
+        const trends = await runtime.getTrends();
         return {
           page: 'top',
+          trends,
         };
       },
       beforeEnter: async (runtime, _, _1) => {
@@ -315,10 +318,11 @@ export class Navigation {
     if (history != null) {
       if (page != null) {
         const { path: histpath, title } = getHistoryInfo(page);
+        // `page` might come from mobx, so convert to plain object.
         if (historyFlag === 'replace') {
-          history.replace(histpath, { path, params, page });
+          history.replace(histpath, { path, params, page: toJS(page) });
         } else if (historyFlag === 'push') {
-          history.push(histpath, { path, params, page });
+          history.push(histpath, { path, params, page: toJS(page) });
         }
         document.title = title;
       }

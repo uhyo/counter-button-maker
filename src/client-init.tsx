@@ -22,6 +22,11 @@ firebaseApp()
 const runtime = {
   stores,
   firebase: firebaseApp(),
+  getTrends: () =>
+    fetch('/api/trends', { method: 'GET', cache: 'default' }).then(res => {
+      const trends = res.json();
+      return trends;
+    }),
 };
 // then, initialize Navigation.
 const navigation = new Navigation(runtime, false);

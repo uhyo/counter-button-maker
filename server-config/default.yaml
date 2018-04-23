@@ -7,3 +7,5 @@ server:
 firebase: "firebase config here"
 # Path to firebase service account key for admin SDK.
 firebaseAdminKey: "path/to/key.json"
+# Maximum number of entries in "trends".
+maxTrends: 5

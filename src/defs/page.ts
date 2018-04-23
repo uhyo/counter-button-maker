@@ -1,10 +1,12 @@
 import { CounterStream } from '../logic/counter/stream';
+import { Trend } from '../logic/trend';
 
 /**
  * Data of top page.
  */
 export interface TopPageData {
   page: 'top';
+  trends: Trend[];
 }
 /**
  * Data of counter page.
