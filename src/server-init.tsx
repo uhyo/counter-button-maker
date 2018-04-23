@@ -19,6 +19,10 @@ export interface RenderResult {
   /** styles */
   styleTags: string;
   /**
+   * Resolved route path.
+   */
+  path: string;
+  /**
    * page params.
    */
   params: Record<string, string>;
@@ -43,7 +47,7 @@ export async function render(pathname: string): Promise<RenderResult> {
   };
   // Simulate navigation to given path.
   const nav = new Navigation(runtime, true);
-  await nav.move(pathname, 'replace');
+  const routePath = await nav.move(pathname, 'replace');
   // Prepare server-side rendering support by styled-components.
   const sheet = new ServerStyleSheet();
   const content = renderToString(
@@ -66,6 +70,7 @@ export async function render(pathname: string): Promise<RenderResult> {
           twitterCreator: null,
         },
       },
+      path: routePath,
       content,
       styleTags,
       params,
@@ -77,6 +82,7 @@ export async function render(pathname: string): Promise<RenderResult> {
     historyInfo: getHistoryInfo(page),
     content,
     styleTags,
+    path: routePath,
     params,
     page,
     count: stores.counter.count,

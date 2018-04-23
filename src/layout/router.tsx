@@ -8,6 +8,7 @@ import { PageStore } from '../store/page-store';
 import { Navigation } from '../logic/navigation';
 
 import * as firebase from 'firebase';
+import { ErrorPage } from '../pages/error';
 
 export interface IPropRouter {
   pageStore: PageStore;
@@ -35,6 +36,9 @@ export class Router extends React.Component<IPropRouter, {}> {
       }
       case 'counter': {
         return <CounterPage content={page.content} navigation={navigation} />;
+      }
+      case 'error': {
+        return <ErrorPage code={page.code} navigation={navigation} />;
       }
     }
   }

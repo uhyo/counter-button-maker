@@ -22,6 +22,14 @@ export interface CounterPageData {
 export interface NewPageData {
   page: 'new';
 }
+/**
+ * Page which is shown when 404 or other error.
+ */
+export interface ErrorPageData {
+  page: 'error';
+  code: number;
+  path: string;
+}
 
 export type BackgroundDef =
   | {
@@ -75,4 +83,8 @@ export interface CounterPageContent {
 /**
  * One of the pages.
  */
-export type PageData = TopPageData | NewPageData | CounterPageData;
+export type PageData =
+  | TopPageData
+  | NewPageData
+  | CounterPageData
+  | ErrorPageData;

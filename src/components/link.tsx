@@ -13,7 +13,11 @@ export interface IPropLink {
 export class Link extends React.PureComponent<IPropLink, {}> {
   public render() {
     const { href, children } = this.props;
-    return <a href={href}>{children}</a>;
+    return (
+      <a href={href} onClick={this.handleClick}>
+        {children}
+      </a>
+    );
   }
   @bind
   protected handleClick(e: React.SyntheticEvent<any>): void {

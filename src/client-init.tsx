@@ -29,9 +29,9 @@ const navigation = new Navigation(runtime, false);
 const data =
   document.currentScript &&
   JSON.parse(document.currentScript.getAttribute('data-data') || 'null');
-stores.page.updatePage(null, data.params, data.page, null);
+stores.page.updatePage(data.path, null, data.params, data.page, null);
 stores.counter.updateCount(data.count);
 hydrate(<App stores={stores} navigation={navigation} />, appArea);
 
 // Navigate using location.
-navigation.initFromLocation().catch(handleError);
+navigation.initFromLocation(data.path).catch(handleError);

@@ -35,6 +35,13 @@ export function makeCounterStream(
 }
 
 /**
+ * Make dummy stream.
+ */
+export function makeDummyStream(code: number): DummyStream {
+  return new DummyStream(code);
+}
+
+/**
  * Event object which is 使いまわされる.
  */
 const eventObject: CounterEvent = {
@@ -174,6 +181,27 @@ export class TestingStream extends CounterStream {
     if (this.timerid != null) {
       clearTimeout(this.timerid);
     }
+    this.emitter.emit('close');
+  }
+  public increment() {
+    this.emit(++this.counter);
+  }
+}
+
+/**
+ * Stream which is not shared.
+ */
+export class DummyStream extends CounterStream {
+  protected counter: number;
+  constructor(protected code: number) {
+    super(String(code));
+    this.counter = code;
+  }
+  public async start() {
+    await void 0;
+    return this.counter;
+  }
+  public close() {
     this.emitter.emit('close');
   }
   public increment() {

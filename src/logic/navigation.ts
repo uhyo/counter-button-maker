@@ -6,6 +6,7 @@ import {
   CounterPageData,
   TopPageData,
   NewPageData,
+  ErrorPageData,
 } from '../defs/page';
 import { serviceName, serviceDescription } from '../defs/service';
 import { Router } from '../layout/router';
@@ -14,6 +15,7 @@ import {
   makeCounterStream,
   CounterEvent,
   CounterStream,
+  makeDummyStream,
 } from './counter/stream';
 import { Stores } from '../store';
 import { Runtime } from '../defs/runtime';
@@ -79,8 +81,8 @@ export class Navigation {
             ? fetchCounterPageContent(runtime.firebase, id)
             : fetchCounterPageByAPI(id));
           if (content == null) {
-            // TODO What!? not found!
-            throw new Error('Page not found');
+            // Such page is not found. Internal redirect
+            return `/404/${id}`;
           }
           return {
             page: 'counter',
@@ -116,6 +118,41 @@ export class Navigation {
         },
       },
     );
+    router.add<{ path: string }, ErrorPageData, { stream: CounterStream }>(
+      '/404/:path*',
+      {
+        beforeMove: async (runtime, params) => {
+          return {
+            page: 'error',
+            code: 404,
+            path: '/' + (params.path || ''),
+          };
+        },
+        beforeEnter: async (runtime, {}, page) => {
+          // Prepare dummy stream for error page.
+          const stream = makeDummyStream(page.code);
+          const count = await stream.start();
+          if (count != null) {
+            counterStore.updateCount(count);
+          }
+          if (!this.server) {
+            stream.emitter.on('count', ({ count }: CounterEvent) => {
+              counterStore.updateCount(count);
+            });
+          }
+          return { stream };
+        },
+        beforeLeave: async (_, _1, _2, { stream }) => {
+          // stop stream when leaving page.
+          stream.close();
+          if (!this.server) {
+            // counter value is invalid until new value is fetched
+            // do not update on server so that rendered component is not updated
+            counterStore.invalidate();
+          }
+        },
+      },
+    );
     this.initHistory();
   }
   /**
@@ -126,7 +163,6 @@ export class Navigation {
       this.historyUnlisten = history.listen(async (location, action) => {
         if (action === 'POP') {
           // It is pop.
-          const pathname = location.pathname;
           const obj = location.state;
           if (obj == null) {
             // ???
@@ -134,12 +170,12 @@ export class Navigation {
             return;
           }
           // Reuse params and pagedata.
-          const { page } = obj;
+          const { path, page } = obj;
           // Re-route.
-          const res = this.router.route(pathname);
+          const res = this.router.route(path);
           if (res == null) {
             // ???
-            this.move(location.pathname, 'none');
+            this.move(path, 'none');
             return;
           }
           // bypass beforemove.
@@ -148,27 +184,48 @@ export class Navigation {
             res.params,
             page,
           );
-          this.navigate(res.route, res.params, page, state, 'none');
+          this.navigate(path, res.route, res.params, page, state, 'none');
         }
       });
     }
   }
   /**
    * Move to given path.
+   * @returns resolved (internal) route path.
    */
-  public async move(pathname: string, historyFlag: HistoryUpdate) {
+  public async move(
+    pathname: string,
+    historyFlag: HistoryUpdate,
+  ): Promise<string> {
     const { runtime } = this;
     const {
       stores: { page: pageStore },
     } = runtime;
-    const res = this.router.route(pathname);
+    let res =
+      this.router.route(pathname) || this.router.route('/404' + pathname);
     if (res == null) {
-      // TODO
-      this.navigate(null, {}, null, null, 'replace');
-      return;
+      // !?
+      throw new Error('Could not navigate');
     }
-    const route = res.route;
-    const page = await route.beforeMove(runtime, res.params);
+    let route = res.route;
+    let page: PageData | string | null = await route.beforeMove(
+      runtime,
+      res.params,
+    );
+    if ('string' === typeof page) {
+      // string indicates redirect.
+      // redirect is allowed only once.
+      res = this.router.route(page) || this.router.route('/404' + page);
+      if (res == null) {
+        throw new Error('Could not navigate');
+      }
+      route = res.route;
+      page = await route.beforeMove(runtime, res.params);
+      if ('string' === typeof page) {
+        // huh?
+        throw new Error('Double redirect');
+      }
+    }
     // Clean up previous state.
     // It is intentionally non-blocking for fast loading of next page.
     if (pageStore.route != null) {
@@ -177,15 +234,16 @@ export class Navigation {
         .catch(handleError);
     }
     const state = await route.beforeEnter(runtime, res.params, page);
-    this.navigate(route, res.params, page, state, historyFlag);
+    this.navigate(res.path, route, res.params, page, state, historyFlag);
+    return res.path;
   }
 
   /**
    * Initialize the page
    * using `location` information.
    */
-  public async initFromLocation() {
-    const { pathname } = location;
+  public async initFromLocation(routepath?: string) {
+    const pathname = routepath || location.pathname;
 
     // await this.move(pathname, 'replace');
     // beforeMove is already done by server, so no need to do it.
@@ -198,41 +256,43 @@ export class Navigation {
     const route = res.route;
     const page = this.runtime.stores.page.page;
     const state = await route.beforeEnter(this.runtime, res.params, page);
-    this.navigate(route, res.params, page, state, 'replace');
+    this.navigate(pathname, route, res.params, page, state, 'replace');
   }
 
   /**
    * Navigate to given page.
+   * @param path resolved path of route object.
    * @param route Route object of current page.
    * @param params Params object.
    * @param page Object of page to move to.
    * @param state Internal state used by this page.
    * @param replace Whether it replaces current page in history.
    */
-  public async navigate<
+  public navigate<
     Params extends Record<string, string>,
     PD extends PageData,
     State
   >(
+    path: string,
     route: Route<Params, PD, State> | null,
     params: Params,
     page: PageData | null,
     state: State,
     historyFlag: HistoryUpdate,
-  ): Promise<void> {
+  ): void {
     // update history.
     if (history != null) {
       if (page != null) {
-        const { path, title } = getHistoryInfo(page);
+        const { path: histpath, title } = getHistoryInfo(page);
         if (historyFlag === 'replace') {
-          history.replace(path, { params, page });
+          history.replace(histpath, { path, params, page });
         } else if (historyFlag === 'push') {
-          history.push(path, { params, page });
+          history.push(histpath, { path, params, page });
         }
         document.title = title;
       }
     }
-    this.runtime.stores.page.updatePage(route, params, page, state);
+    this.runtime.stores.page.updatePage(path, route, params, page, state);
   }
   /**
    * Close navigation.
@@ -319,6 +379,17 @@ export function getHistoryInfo(page: PageData): HistoryInfo {
                 : page.content.background.url,
           description: page.content.description,
           twitterCreator: null,
+        },
+      };
+    }
+    case 'error': {
+      return {
+        path: page.path,
+        title: page.code === 404 ? `404 Not Found` : String(page.code),
+        social: {
+          image: '/static/card.jpg',
+          description: '',
+          twitterCreator: '@uhyo_',
         },
       };
     }

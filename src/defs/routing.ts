@@ -9,7 +9,7 @@ export interface Route<Params, PD extends PageData, State> {
    * Hook dispatched when move is triggered.
    * Fetch data required by pages here.
    */
-  beforeMove: (runtime: Runtime, params: Params) => Promise<PD>;
+  beforeMove: (runtime: Runtime, params: Params) => Promise<PD | string>;
   /**
    * Hook dispatched when moved to page.
    * Init internal state here.

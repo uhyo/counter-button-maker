@@ -15,6 +15,7 @@ import { createDiffieHellman } from 'crypto';
 import { Navigation } from '../logic/navigation';
 import { handleError } from '../logic/error';
 import { bind } from 'bind-decorator';
+import { SmallNotes } from '../components/paragraph';
 
 export interface IPropTopPage {
   page: TopPageData;
@@ -91,8 +92,4 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
 
 const Description = styled.p`
   font-weight: bold;
-`;
-
-const SmallNotes = styled.p`
-  font-size: 0.8em;
 `;

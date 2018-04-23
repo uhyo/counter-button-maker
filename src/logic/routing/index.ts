@@ -3,6 +3,7 @@ import { Route } from '../../defs/routing';
 import { PageData } from '../../defs/page';
 
 export interface RouteResult<Params, PD extends PageData, State> {
+  path: string;
   route: Route<Params, PD, State>;
   params: Params;
 }
@@ -49,6 +50,7 @@ export class Routing {
           params[keys[i].name] = res[i + 1];
         }
         return {
+          path,
           route: r.route,
           params,
         };
