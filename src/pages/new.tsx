@@ -21,6 +21,7 @@ import { Navigation } from '../logic/navigation';
 import { publishCounter, randomid } from '../logic/publish';
 import { Link } from '../components/link';
 import { UserUI } from './user';
+import { backgroundImageProxy } from '../defs/service';
 
 export interface IStateNewPage {
   loading: boolean;
@@ -176,6 +177,10 @@ class PageWrapper extends React.Component<
       gradientStart,
       gradientEnd,
     } = newStore;
+    const backURL =
+      backgroundImageURL != null
+        ? backgroundImageProxy(backgroundImageURL)
+        : null;
     const useDefault =
       backgroundType === 'default' ||
       forceDefault ||
@@ -183,7 +188,7 @@ class PageWrapper extends React.Component<
     const backgroundImageValue = useDefault
       ? 'url(/static/back.jpg)'
       : backgroundType === 'image'
-        ? `url(${backgroundImageURL})`
+        ? `url(${backURL})`
         : `linear-gradient(to bottom, ${gradientStart}, ${gradientEnd})`;
     const style = {
       backgroundImage: backgroundImageValue,

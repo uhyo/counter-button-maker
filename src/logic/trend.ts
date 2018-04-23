@@ -19,7 +19,7 @@ export class Trends {
     for (let i = 0; i < len; i++) {
       if (data[i].id === trend.id) {
         // found. Bubble this up to the top.
-        for (let j = i; j > 0; i--) {
+        for (let j = i; j > 0; j--) {
           data[j] = data[j - 1];
         }
         data[0] = trend;

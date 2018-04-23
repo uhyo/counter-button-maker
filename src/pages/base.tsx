@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { BackgroundDef } from '../defs/page';
 import * as React from 'react';
+import { backgroundImageProxy } from '../defs/service';
 
 /**
  * Base component for page wrapper.
@@ -34,7 +35,7 @@ export class PageWrapper extends React.PureComponent<
       background == null
         ? 'url(/static/back.jpg)'
         : background.type === 'image'
-          ? `url(${background.url})`
+          ? `url(${backgroundImageProxy(background.url)})`
           : `linear-gradient(to bottom, ${background.from}, ${background.to})`;
     const repeat =
       background && background.type === 'image' && background.repeat;
