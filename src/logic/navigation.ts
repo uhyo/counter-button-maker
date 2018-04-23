@@ -41,16 +41,24 @@ export class Navigation {
         // Prepare counter stream.
         const stream = makeCounterStream('/top', runtime, this.server);
         const count = await stream.start();
-        counterStore.updateCount(count);
-        stream.emitter.on('count', ({ count }: CounterEvent) => {
+        if (count != null) {
           counterStore.updateCount(count);
-        });
+        }
+        if (!this.server) {
+          stream.emitter.on('count', ({ count }: CounterEvent) => {
+            counterStore.updateCount(count);
+          });
+        }
         return { stream };
       },
 
       beforeLeave: async (_, _1, _2, { stream }) => {
         // stop stream when leaving page.
         stream.close();
+        // counter value is invalid until new value is fetched
+        if (!this.server) {
+          counterStore.invalidate();
+        }
       },
     });
     router.add<{}, NewPageData, void>('/new', {
@@ -85,15 +93,24 @@ export class Navigation {
             this.server,
           );
           const count = await stream.start();
-          counterStore.updateCount(count);
-          stream.emitter.on('count', ({ count }: CounterEvent) => {
+          if (count != null) {
             counterStore.updateCount(count);
-          });
+          }
+          if (!this.server) {
+            stream.emitter.on('count', ({ count }: CounterEvent) => {
+              counterStore.updateCount(count);
+            });
+          }
           return { stream };
         },
         beforeLeave: async (_, _1, _2, { stream }) => {
           // stop stream when leaving page.
           stream.close();
+          if (!this.server) {
+            // counter value is invalid until new value is fetched
+            // do not update on server so that rendered component is not updated
+            counterStore.invalidate();
+          }
         },
       },
     );
@@ -142,13 +159,6 @@ export class Navigation {
     const {
       stores: { page: pageStore },
     } = runtime;
-    // Clean up previous state.
-    // It is intentionall non-blocking for fast loading of next page.
-    if (pageStore.route != null) {
-      pageStore.route
-        .beforeLeave(runtime, pageStore.params, pageStore.page, pageStore.state)
-        .catch(handleError);
-    }
     const res = this.router.route(pathname);
     if (res == null) {
       // TODO
@@ -157,6 +167,13 @@ export class Navigation {
     }
     const route = res.route;
     const page = await route.beforeMove(runtime, res.params);
+    // Clean up previous state.
+    // It is intentionall non-blocking for fast loading of next page.
+    if (pageStore.route != null) {
+      pageStore.route
+        .beforeLeave(runtime, pageStore.params, pageStore.page, pageStore.state)
+        .catch(handleError);
+    }
     const state = await route.beforeEnter(runtime, res.params, page);
 
     this.navigate(route, res.params, page, state, historyFlag);

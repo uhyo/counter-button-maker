@@ -27,6 +27,10 @@ app.get('*', (req, res, next) => {
   // render page.
   render(req.path)
     .then(({ historyInfo, content, styleTags, page, count }) => {
+      res.setHeader(
+        'Cache-Control',
+        `public, max-age=${config.get('server.cacheMaxAge')}`,
+      );
       res.render('app', {
         title: historyInfo.title,
         content,

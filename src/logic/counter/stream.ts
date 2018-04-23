@@ -5,6 +5,12 @@ import { EventEmitter2 } from 'eventemitter2';
 import { Runtime } from '../../defs/runtime';
 import * as firebase from 'firebase';
 import { handleError } from '../error';
+import { sleep } from '../sleep';
+
+/**
+ * Timeout for initial request to realtime database.
+ */
+const FIRST_TIMEOUT = 2000;
 
 /**
  * Event object.
@@ -46,8 +52,9 @@ export abstract class CounterStream {
   }
   /**
    * Initialize stream and return current count.
+   * Result is null if it timed out.
    */
-  public abstract start(): Promise<number>;
+  public abstract start(): Promise<number | null>;
   /**
    * Close this stream.
    */
@@ -79,22 +86,23 @@ export class FirebaseStream extends CounterStream {
     super(id);
     this.database = runtime.firebase.database();
   }
-  public async start(): Promise<number> {
+  public async start(): Promise<number | null> {
     // Initialize connection to realtime database.
     const ref = this.database.ref(this.id);
     this.ref = ref;
     if (this.server) {
       // fetch just once.
-      return await ref
-        .once('value')
-        .then((snapshot: firebase.database.DataSnapshot) => {
+      const start_time = Date.now();
+      return await Promise.race([
+        sleep(FIRST_TIMEOUT).then(() => null),
+        ref.once('value').then((snapshot: firebase.database.DataSnapshot) => {
           const count: number = snapshot.val();
-          this.emit(count);
           return count;
-        });
+        }),
+      ]);
     } else {
       // Listen to data.
-      return new Promise<number>(resolve => {
+      return new Promise<number | null>(resolve => {
         let res: typeof resolve | null = resolve;
         ref.on(
           'value',
@@ -108,6 +116,13 @@ export class FirebaseStream extends CounterStream {
           },
           handleError,
         );
+        // set timeout.
+        sleep(FIRST_TIMEOUT).then(() => {
+          if (res != null) {
+            res(null);
+            res = null;
+          }
+        });
       });
     }
   }
