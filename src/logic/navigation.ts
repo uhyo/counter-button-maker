@@ -168,25 +168,35 @@ export class Navigation {
     const route = res.route;
     const page = await route.beforeMove(runtime, res.params);
     // Clean up previous state.
-    // It is intentionall non-blocking for fast loading of next page.
+    // It is intentionally non-blocking for fast loading of next page.
     if (pageStore.route != null) {
       pageStore.route
         .beforeLeave(runtime, pageStore.params, pageStore.page, pageStore.state)
         .catch(handleError);
     }
     const state = await route.beforeEnter(runtime, res.params, page);
-
     this.navigate(route, res.params, page, state, historyFlag);
   }
 
   /**
-   * Initialize the page store
+   * Initialize the page
    * using `location` information.
    */
   public async initFromLocation() {
     const { pathname } = location;
 
-    await this.move(pathname, 'replace');
+    // await this.move(pathname, 'replace');
+    // beforeMove is already done by server, so no need to do it.
+    const res = this.router.route(pathname);
+    // ??? it's 404!
+    if (res == null) {
+      await this.move(pathname, 'replace');
+      return;
+    }
+    const route = res.route;
+    const page = this.runtime.stores.page.page;
+    const state = await route.beforeEnter(this.runtime, res.params, page);
+    this.navigate(route, res.params, page, state, 'replace');
   }
 
   /**

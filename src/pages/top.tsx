@@ -44,7 +44,7 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
               <TweetButton onClick={this.handleTweet}>ツイート</TweetButton>
             </p>
             <SmallNotes>
-              ボタンを押すと数が増えるという全く新しい画期的なWebサービスを1分で作って公開できる全く新しい画期的なWebサービスを簡単に複製して公開できるサービスはこちら
+              ボタンを押すと数が増えるという全く新しい画期的なWebサービスを1分で作って公開できる全く新しい画期的なWebサービスを簡単に複製して公開できる画期的なWebサービスはこちら
               →
               <a
                 href="https://github.com/uhyo/counter-button-maker"
@@ -58,6 +58,15 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
               <a href="https://twitter.com/uhyo_" target="_blank">
                 Twitter
               </a>
+            </SmallNotes>
+            <SmallNotes>
+              先駆者：
+              <a href="http://nyanpass.com/" target="_blank">
+                にゃんぱすーボタン
+              </a>，
+              <a href="http://hinasuki.com/" target="_blank">
+                ひなすきボタン
+              </a>（もし他にもあったら教えてください）
             </SmallNotes>
           </MainContent>
         </Centralize>
