@@ -6,6 +6,7 @@ import { render } from '../src/server-init';
 import { firebaseApp } from './firebase';
 import { fetchCounterPageContent } from '../src/logic/counter';
 import { Trends } from '../src/logic/trend';
+import { backgroundImageProxy } from '../src/defs/service';
 
 // Result of building client-side bundle.
 let manifest = JSON.parse(fs.readFileSync('./dist/manifest.json', 'utf8'));
@@ -118,7 +119,7 @@ app.get('*', (req, res, next) => {
                 content:
                   historyInfo.social.image[0] === '/'
                     ? config.get('server.origin') + historyInfo.social.image
-                    : historyInfo.social.image,
+                    : backgroundImageProxy(historyInfo.social.image),
               },
               {
                 name: 'twitter:card',
