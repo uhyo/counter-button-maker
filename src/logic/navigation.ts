@@ -27,6 +27,10 @@ type HistoryUpdate = 'push' | 'replace' | 'none';
 export class Navigation {
   protected router: Routing;
   protected historyUnlisten: any;
+  /**
+   * Function to cancel current navigation.
+   */
+  protected cancel: (() => void) | null = null;
   constructor(protected runtime: Runtime, public readonly server: boolean) {
     const {
       stores: { counter: counterStore },
@@ -191,16 +195,23 @@ export class Navigation {
   }
   /**
    * Move to given path.
-   * @returns resolved (internal) route path.
+   * @returns whether this move is cancelled.
    */
   public async move(
     pathname: string,
     historyFlag: HistoryUpdate,
-  ): Promise<string> {
+  ): Promise<boolean> {
     const { runtime } = this;
     const {
       stores: { page: pageStore },
     } = runtime;
+    if (this.cancel != null) {
+      // cancel ongoing navigation in favor of new one.
+      this.cancel();
+    }
+    let cancelled = false;
+    this.cancel = () => (cancelled = true);
+
     let res =
       this.router.route(pathname) || this.router.route('/404' + pathname);
     if (res == null) {
@@ -212,6 +223,7 @@ export class Navigation {
       runtime,
       res.params,
     );
+    if (cancelled) return true;
     if ('string' === typeof page) {
       // string indicates redirect.
       // redirect is allowed only once.
@@ -226,6 +238,7 @@ export class Navigation {
         throw new Error('Double redirect');
       }
     }
+    if (cancelled) return true;
     // Clean up previous state.
     // It is intentionally non-blocking for fast loading of next page.
     if (pageStore.route != null) {
@@ -234,29 +247,47 @@ export class Navigation {
         .catch(handleError);
     }
     const state = await route.beforeEnter(runtime, res.params, page);
+    if (cancelled) {
+      // close because canceled.
+      route.beforeLeave(runtime, res.params, page, state);
+      return true;
+    }
     this.navigate(res.path, route, res.params, page, state, historyFlag);
-    return res.path;
+    this.cancel = null;
+    return false;
   }
 
   /**
    * Initialize the page
    * using `location` information.
+   * @returns whether initialization is canceled.
    */
-  public async initFromLocation(routepath?: string) {
+  public async initFromLocation(routepath?: string): Promise<boolean> {
     const pathname = routepath || location.pathname;
+    // XXX cancel process appears twice
+    if (this.cancel != null) {
+      this.cancel();
+    }
+    let cancelled = false;
+    this.cancel = () => (cancelled = true);
 
     // await this.move(pathname, 'replace');
     // beforeMove is already done by server, so no need to do it.
     const res = this.router.route(pathname);
     // ??? it's 404!
     if (res == null) {
-      await this.move(pathname, 'replace');
-      return;
+      this.cancel = null;
+      return await this.move(pathname, 'replace');
     }
     const route = res.route;
     const page = this.runtime.stores.page.page;
     const state = await route.beforeEnter(this.runtime, res.params, page);
+    if (cancelled) {
+      route.beforeLeave(this.runtime, res.params, page, state);
+      return true;
+    }
     this.navigate(pathname, route, res.params, page, state, 'replace');
+    return false;
   }
 
   /**
