@@ -1,7 +1,7 @@
 /**
  * Service name.
  */
-export const serviceName = '押すと数が増えるボタンを作る\u200bサービス';
+export const serviceName = '押すと数が増えるボタンを作るサービス';
 
 /**
  * Service description
