@@ -71,12 +71,12 @@ app.get('*', (req, res, next) => {
           'Cache-Control',
           `public, max-age=${config.get('server.cacheMaxAge')}`,
         );
-        error = true;
       }
       if (page == null) {
         error = true;
         res.status(500);
       } else if (page.page === 'error') {
+        error = true;
         res.status(page.code);
       } else if (page.page === 'counter') {
         trends.add({
