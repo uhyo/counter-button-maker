@@ -6,7 +6,7 @@
   "scripts": {
     "precommit": "lint-staged",
     "build": "webpack-cli --config build/webpack.config.js",
-    "production-build": "NODE_ENV=production webpack-cli --config build/webpack.config.js",
+    "production-build": "npm run clean && NODE_ENV=production webpack-cli --config build/webpack.config.js",
     "watch": "webpack-cli --watch --config build/webpack.config.js",
     "dev": "NODE_CONFIG_DIR=server-config/ webpack-serve --config build/webpack.config.js",
     "start": "NODE_CONFIG_DIR=server-config/ node dist-server/index.js",
