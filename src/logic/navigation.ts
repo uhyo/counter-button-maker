@@ -185,6 +185,18 @@ export class Navigation {
             this.move(path, 'none');
             return;
           }
+          // XXX This logic appars twice!
+          const pageStore = this.runtime.stores.page;
+          if (pageStore.route != null) {
+            pageStore.route
+              .beforeLeave(
+                this.runtime,
+                pageStore.params,
+                pageStore.page,
+                pageStore.state,
+              )
+              .catch(handleError);
+          }
           // bypass beforemove.
           const state = await res.route.beforeEnter(
             this.runtime,
