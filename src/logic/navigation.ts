@@ -1,4 +1,4 @@
-import { fetchCounterPageContent } from './counter';
+import { fetchCounterPageContent, fetchCounterPageByAPI } from './counter';
 import { history } from './history';
 import { handleError } from './error';
 import {
@@ -75,7 +75,9 @@ export class Navigation {
       {
         beforeMove: async (runtime, { id }) => {
           // Fetch page data for it.
-          const content = await fetchCounterPageContent(runtime, id);
+          const content = await (this.server
+            ? fetchCounterPageContent(runtime.firebase, id)
+            : fetchCounterPageByAPI(id));
           if (content == null) {
             // TODO What!? not found!
             throw new Error('Page not found');

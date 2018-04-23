@@ -3,6 +3,8 @@ import express from './express';
 import * as nunjucks from 'nunjucks';
 import * as config from 'config';
 import { render } from '../src/server-init';
+import { firebaseApp } from './firebase';
+import { fetchCounterPageContent } from '../src/logic/counter';
 
 // Result of building client-side bundle.
 let manifest = JSON.parse(fs.readFileSync('./dist/manifest.json', 'utf8'));
@@ -19,6 +21,26 @@ app.use('/assets', express.static('dist'));
 // Also static files.
 app.use('/static', express.static('static'));
 
+// api provided to users.
+app.get('/api/get-page', (req, res, next) => {
+  // fetch counter page data for client.
+  // usage: /api/get-page?id=...
+  fetchCounterPageContent(firebaseApp, req.query.id)
+    .then(data => {
+      if (data == null) {
+        res.status(404).json({
+          error: 'Not Found',
+        });
+      } else {
+        res.setHeader(
+          'Cache-Control',
+          `public, max-age=${config.get('server.cacheMaxAge')}`,
+        );
+        res.json(data);
+      }
+    })
+    .catch(next);
+});
 app.get('*', (req, res, next) => {
   if (process.env.NODE_ENV !== 'production') {
     // Reload manifest.json every time.
