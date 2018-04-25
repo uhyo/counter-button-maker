@@ -12,7 +12,7 @@ export const serviceDescription =
 // XXX these should be in config file?
 const storagePrefix =
   'https://firebasestorage.googleapis.com/v0/b/counter-button-maker.appspot.com/o/';
-const proxyURL = 'https://img.buttons.uhyo.space/';
+const proxyURL = 'https://img-buttons.uhyo.space/';
 /**
  * Replace background image url by proxy.
  */
