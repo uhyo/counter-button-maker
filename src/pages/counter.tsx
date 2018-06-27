@@ -130,6 +130,7 @@ class IncrementButton extends React.Component<
       <Button
         onClick={this.handleClick}
         onDoubleClick={disableDblClock}
+        onTouchEnd={this.handleTouchEnd}
         style={{
           backgroundColor: buttonBg,
           color: buttonColor,
@@ -151,5 +152,11 @@ class IncrementButton extends React.Component<
     this.setState({
       lastClickTime: now,
     });
+  }
+  @bind
+  protected handleTouchEnd(e: React.SyntheticEvent<any>): void {
+    // We also cansel touchend so that double-tap zoom does not work.
+    e.preventDefault();
+    this.handleClick(e);
   }
 }
