@@ -11,15 +11,17 @@ import { trendNumber } from '../logic/trend/loader';
 export interface IPropTrends {
   trendStore: TrendStore;
   navigation: Navigation;
+  type: 'trends' | 'ranking';
 }
 
 @observer
 export class Trends extends React.Component<IPropTrends, {}> {
   public render() {
-    const {
-      trendStore: { loading, trends },
-      navigation,
-    } = this.props;
+    const { trendStore, type, navigation } = this.props;
+
+    const loading =
+      type === 'trends' ? trendStore.trendsLoading : trendStore.rankingLoading;
+    const trends = type === 'trends' ? trendStore.trends : trendStore.ranking;
 
     return !loading ? (
       <TrendList>
@@ -27,7 +29,7 @@ export class Trends extends React.Component<IPropTrends, {}> {
           <Link href={`/${id}`} navigation={navigation} key={id}>
             <TrendContainer>
               <BgThumbnail bg={background} />
-              {title}
+              <TrendText>{title}</TrendText>
             </TrendContainer>
           </Link>
         ))}
@@ -39,7 +41,7 @@ export class Trends extends React.Component<IPropTrends, {}> {
           return (
             <TrendContainer key={i}>
               <BgThumbnail bg={{ type: 'placeholder' }} />
-              <PlaceholderText>取得中……</PlaceholderText>
+              <PlaceholderText>読み込み中</PlaceholderText>
             </TrendContainer>
           );
         })}
@@ -51,13 +53,19 @@ export class Trends extends React.Component<IPropTrends, {}> {
 const TrendList = styled.ul`
   padding: 0;
   list-style-type: none;
-  line-height: 1.8em;
+  line-height: 1.2em;
 `;
 
 const TrendContainer = styled.li`
+  display: flex;
+  flex-flow: row nowrap;
   margin: 0.8em 0;
 `;
 
-const PlaceholderText = styled.span`
+const TrendText = styled.span`
+  align-self: center;
+`;
+
+const PlaceholderText = styled(TrendText)`
   color: #666666;
 `;

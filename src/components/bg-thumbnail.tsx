@@ -68,6 +68,7 @@ export const BgThumbnail: React.StatelessComponent<{
 };
 
 const ImageBox = styled.div`
+  flex: auto 0 0;
   display: inline-block;
   vertical-align: middle;
 
