@@ -20,7 +20,7 @@ import {
 import { Stores } from '../store';
 import { Runtime } from '../defs/runtime';
 import { toJS } from 'mobx';
-import { loadTrends } from './trend/loader';
+import { loadTrends, loadRanking } from './trend/loader';
 import { Trend } from './trend';
 
 /**
@@ -59,6 +59,11 @@ export class Navigation {
           loadTrends(runtime).then(trends => {
             if (!cancelFlag.value) {
               trendStore.loadTrend(trends);
+            }
+          });
+          loadRanking(runtime).then(trends => {
+            if (!cancelFlag.value) {
+              trendStore.loadRanking(trends);
             }
           });
         }

@@ -9,16 +9,20 @@ export const trendNumber = 5;
 /**
  * Fetch trend data once from database.
  */
-export async function loadTrends(runtime: Runtime): Promise<Trend[]> {
+async function loadSortedData(
+  runtime: Runtime,
+  path: string,
+): Promise<Trend[]> {
   const db = runtime.firebase.database();
-  const ref = db.ref('/recentaccess');
+  const ref = db.ref(path);
   const trendsQuery = ref.orderByValue().limitToLast(trendNumber);
   const trendsSnapshot = await trendsQuery.once('value');
   const data: Record<string, number> = trendsSnapshot.toJSON();
+  // sort data keys by value.
+  const keys = Object.keys(data).sort((a, b) => data[b] - data[a]);
   // load counter data for each counter ids.
-  console.log(data);
   return Promise.all(
-    Object.keys(data).map(async id => {
+    keys.map(async id => {
       const pageData = await runtime.fetchCounterPageContent(id);
       console.log(id, pageData);
       return {
@@ -28,4 +32,18 @@ export async function loadTrends(runtime: Runtime): Promise<Trend[]> {
       };
     }),
   );
+}
+
+/**
+ * Fetch trend data once from database.
+ */
+export function loadTrends(runtime: Runtime): Promise<Trend[]> {
+  return loadSortedData(runtime, '/recentaccess');
+}
+
+/**
+ * Fetch ranking data once from database.
+ */
+export async function loadRanking(runtime: Runtime): Promise<Trend[]> {
+  return loadSortedData(runtime, '/counters');
 }

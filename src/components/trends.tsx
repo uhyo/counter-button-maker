@@ -63,7 +63,9 @@ const TrendContainer = styled.li`
 `;
 
 const TrendText = styled.span`
+  max-height: 80px;
   align-self: center;
+  overflow: hidden;
 `;
 
 const PlaceholderText = styled(TrendText)`
