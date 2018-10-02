@@ -7,6 +7,8 @@ import { makeStores } from './store';
 import { PageData } from './defs/page';
 import { firebaseApp } from '../server/firebase';
 import { Trends } from './logic/trend';
+import { Runtime } from './defs/runtime';
+import { fetchCounterPageContent } from './logic/counter';
 
 export interface RenderResult {
   /**
@@ -45,10 +47,10 @@ export async function render(
 ): Promise<RenderResult> {
   // Initialize store for this rendering.
   const stores = makeStores();
-  const runtime = {
+  const runtime: Runtime = {
     stores,
     firebase: firebaseApp,
-    getTrends: () => Promise.resolve(trends.data),
+    fetchCounterPageContent: id => fetchCounterPageContent(firebaseApp, id),
   };
   // Simulate navigation to given path.
   const nav = new Navigation(runtime, true);

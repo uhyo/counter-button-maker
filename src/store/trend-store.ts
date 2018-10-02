@@ -3,15 +3,27 @@ import { Trend } from '../logic/trend';
 
 export class TrendStore {
   /**
+   * Flag indicating currently loading trends.
+   */
+  @observable public loading: boolean = false;
+  /**
    * Current trend.
    */
   @observable public trends: Trend[] = [];
 
   /**
-   * update trend.
+   * Set state to loading.
    */
   @action
-  public updateTrend(trends: Trend[]) {
+  public setLoading() {
+    this.loading = true;
+  }
+  /**
+   * load trends.
+   */
+  @action
+  public loadTrend(trends: Trend[]) {
+    this.loading = false;
     this.trends = trends;
   }
 }
