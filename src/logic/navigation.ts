@@ -41,9 +41,9 @@ export class Navigation {
     router.add<{}, TopPageData, { stream: CounterStream }>('/', {
       beforeMove: async runtime => {
         const trends = await runtime.getTrends();
+        runtime.stores.trend.updateTrend(trends);
         return {
           page: 'top',
-          trends,
         };
       },
       beforeEnter: async (runtime, _, _1) => {
