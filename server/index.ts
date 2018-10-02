@@ -5,14 +5,10 @@ import * as config from 'config';
 import { render } from '../src/server-init';
 import { firebaseApp } from './firebase';
 import { fetchCounterPageContent } from '../src/logic/counter';
-import { Trends } from '../src/logic/trend';
 import { backgroundImageProxy } from '../src/defs/service';
 
 // Result of building client-side bundle.
 let manifest = JSON.parse(fs.readFileSync('./dist/manifest.json', 'utf8'));
-
-// Remember recent trends.
-const trends = new Trends(5);
 
 const app = express();
 app.set('view engine', 'njk');
@@ -37,10 +33,6 @@ app.get('/api/get-page', (req, res, next) => {
           error: 'Not Found',
         });
       } else {
-        trends.add({
-          id: data.id,
-          title: data.title,
-        });
         res.setHeader(
           'Cache-Control',
           `public, max-age=${config.get('server.cacheMaxAge')}`,
@@ -50,21 +42,13 @@ app.get('/api/get-page', (req, res, next) => {
     })
     .catch(next);
 });
-app.get('/api/trends', (req, res, next) => {
-  // provide current trend (but cached!) to user
-  res.setHeader(
-    'Cache-Control',
-    `public, max-age=${config.get('server.cacheMaxAge')}`,
-  );
-  res.json(trends.data);
-});
 app.get('*', (req, res, next) => {
   if (process.env.NODE_ENV !== 'production') {
     // Reload manifest.json every time.
     manifest = JSON.parse(fs.readFileSync('./dist/manifest.json', 'utf8'));
   }
   // render page.
-  render(req.path, trends)
+  render(req.path)
     .then(({ historyInfo, content, styleTags, page, count, path }) => {
       let error: boolean = false;
       if (page != null && page.page !== 'error') {
@@ -79,11 +63,6 @@ app.get('*', (req, res, next) => {
       } else if (page.page === 'error') {
         error = true;
         res.status(page.code);
-      } else if (page.page === 'counter') {
-        trends.add({
-          id: page.content.id,
-          title: page.content.title,
-        });
       }
 
       res.render('app', {

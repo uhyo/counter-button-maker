@@ -2,12 +2,17 @@ import { Trend } from '.';
 import { Runtime } from '../../defs/runtime';
 
 /**
+ * Number of trends fetched by server.
+ */
+export const trendNumber = 5;
+
+/**
  * Fetch trend data once from database.
  */
 export async function loadTrends(runtime: Runtime): Promise<Trend[]> {
   const db = runtime.firebase.database();
   const ref = db.ref('/recentaccess');
-  const trendsQuery = ref.orderByValue().limitToLast(5);
+  const trendsQuery = ref.orderByValue().limitToLast(trendNumber);
   const trendsSnapshot = await trendsQuery.once('value');
   const data: Record<string, number> = trendsSnapshot.toJSON();
   // load counter data for each counter ids.
@@ -19,6 +24,7 @@ export async function loadTrends(runtime: Runtime): Promise<Trend[]> {
       return {
         id,
         title: pageData != null ? pageData.title : '',
+        background: pageData != null ? pageData.background : null,
       };
     }),
   );

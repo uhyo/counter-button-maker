@@ -1,9 +1,21 @@
+import { BackgroundDef } from '../../defs/page';
+
 /**
  * Trend object.
  */
 export interface Trend {
+  /**
+   * ID of this button.
+   */
   id: string;
+  /**
+   * title of this button.
+   */
   title: string;
+  /**
+   * background definition of this button.
+   */
+  background: BackgroundDef;
 }
 /**
  * A class which remembers trends like LRU cache.

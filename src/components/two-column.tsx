@@ -10,6 +10,7 @@ export const TwoColumn = styled.div`
 `;
 
 export const SubContent = styled(MainContent)`
+  flex: auto 1 1;
   text-align: inherit;
   h1 {
     font-size: 1.5em;
