@@ -29,6 +29,7 @@ async function loadSortedData(
         id,
         title: pageData != null ? pageData.title : '',
         background: pageData != null ? pageData.background : null,
+        sortNumber: data[id],
       };
     }),
   );

@@ -16,6 +16,10 @@ export interface Trend {
    * background definition of this button.
    */
   background: BackgroundDef;
+  /**
+   * number used for sorting.
+   */
+  sortNumber: number;
 }
 /**
  * A class which remembers trends like LRU cache.

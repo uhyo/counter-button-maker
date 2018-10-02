@@ -89,6 +89,7 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
                 {({ trend }) => (
                   <Trends
                     type="ranking"
+                    show-number
                     trendStore={trend}
                     navigation={navigation}
                   />
