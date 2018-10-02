@@ -1,23 +1,17 @@
 import { observable, action } from 'mobx';
+import { Trend } from '../logic/trend';
 
 export class TrendStore {
   /**
    * Current trend.
    */
-  @observable public trends: TrendEntry[] = [];
+  @observable public trends: Trend[] = [];
 
   /**
    * update trend.
    */
   @action
-  public updateTrend(trends: TrendEntry[]) {
+  public updateTrend(trends: Trend[]) {
     this.trends = trends;
   }
-}
-
-export interface TrendEntry {
-  /**
-   * Name of counter.
-   */
-  name: string;
 }

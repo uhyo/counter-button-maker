@@ -27,10 +27,7 @@ export interface IPropTopPage {
  */
 export class TopPage extends React.PureComponent<IPropTopPage, {}> {
   public render() {
-    const {
-      page: { trends },
-      navigation,
-    } = this.props;
+    const { navigation } = this.props;
     return (
       <NormalPageWrapper>
         <Centralize>
@@ -49,18 +46,23 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
               <Button onClick={this.handleNewClick}>ボタンを作る</Button>
               <TweetButton onClick={this.handleTweet}>ツイート</TweetButton>
             </p>
-            {trends.length > 0 ? (
-              <p>
-                トレンド：{trends.map(({ id, title }) => (
-                  <React.Fragment key={id}>
-                    {' '}
-                    <Link href={`/${id}`} navigation={navigation}>
-                      {title}
-                    </Link>
-                  </React.Fragment>
-                ))}
-              </p>
-            ) : null}
+            <StoreConsumer>
+              {({ trend: { trends } }) =>
+                trends.length > 0 ? (
+                  <p>
+                    トレンド：{trends.map(({ id, title }) => (
+                      <React.Fragment key={id}>
+                        {' '}
+                        <Link href={`/${id}`} navigation={navigation}>
+                          {title}
+                        </Link>
+                      </React.Fragment>
+                    ))}
+                  </p>
+                ) : null
+              }
+            </StoreConsumer>
+            {}
             <SmallNotes>
               ボタンを押すと数が増えるという全く新しい画期的なWebサービスを1分で作って公開できる全く新しい画期的なWebサービスを簡単に複製して公開できる画期的なWebサービスはこちら
               →

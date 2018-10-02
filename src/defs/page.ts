@@ -6,7 +6,6 @@ import { Trend } from '../logic/trend';
  */
 export interface TopPageData {
   page: 'top';
-  trends: Trend[];
 }
 /**
  * Data of counter page.
