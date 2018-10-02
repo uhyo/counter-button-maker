@@ -9,5 +9,6 @@ import { CounterPageContent } from './page';
 export interface Runtime {
   stores: Stores;
   firebase: firebase.app.App;
+  firebaseGlobal: (typeof firebase) | null;
   fetchCounterPageContent: (id: string) => Promise<CounterPageContent | null>;
 }

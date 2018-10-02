@@ -1,4 +1,5 @@
 import { BackgroundDef } from '../../defs/page';
+import { Runtime } from '../../defs/runtime';
 
 /**
  * Trend object.
@@ -21,32 +22,20 @@ export interface Trend {
    */
   sortNumber: number;
 }
+
 /**
- * A class which remembers trends like LRU cache.
- * As naive implementation, `size` should be small.
+ * update recent access time.
  */
-export class Trends {
-  public readonly data: Trend[] = [];
-  constructor(protected size: number) {}
-  public add(trend: Trend): void {
-    const { data } = this;
-    // search for same entry.
-    const len = data.length;
-    for (let i = 0; i < len; i++) {
-      if (data[i].id === trend.id) {
-        // found. Bubble this up to the top.
-        for (let j = i; j > 0; j--) {
-          data[j] = data[j - 1];
-        }
-        data[0] = trend;
-        return;
-      }
-    }
-    // Not found.
-    data.unshift(trend);
-    if (len >= this.size) {
-      // Discard lest recend item.
-      data.pop();
-    }
+export async function notifyCounterPageAccess(
+  runtime: Runtime,
+  id: string,
+): Promise<void> {
+  const { firebase, firebaseGlobal } = runtime;
+  if (firebaseGlobal == null) {
+    // clinet should have firebaseGlobal.
+    return;
   }
+  const db = firebase.database();
+  const ref = db.ref(`/recentaccess/${id}`);
+  return ref.set(firebaseGlobal.database.ServerValue.TIMESTAMP);
 }

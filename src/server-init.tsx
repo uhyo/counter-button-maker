@@ -46,6 +46,7 @@ export async function render(pathname: string): Promise<RenderResult> {
   const runtime: Runtime = {
     stores,
     firebase: firebaseApp,
+    firebaseGlobal: null,
     fetchCounterPageContent: id => fetchCounterPageContent(firebaseApp, id),
   };
   // Simulate navigation to given path.

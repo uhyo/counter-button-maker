@@ -1,4 +1,3 @@
-import { fetchCounterPageContent, fetchCounterPageByAPI } from './counter';
 import { history } from './history';
 import { handleError } from './error';
 import {
@@ -9,7 +8,6 @@ import {
   ErrorPageData,
 } from '../defs/page';
 import { serviceName, serviceDescription } from '../defs/service';
-import { Router } from '../layout/router';
 import { Routing, Route } from './routing';
 import {
   makeCounterStream,
@@ -17,11 +15,10 @@ import {
   CounterStream,
   makeDummyStream,
 } from './counter/stream';
-import { Stores } from '../store';
 import { Runtime } from '../defs/runtime';
 import { toJS } from 'mobx';
 import { loadTrends, loadRanking } from './trend/loader';
-import { Trend } from './trend';
+import { notifyCounterPageAccess } from './trend';
 
 /**
  * Flag for history update.
@@ -45,7 +42,7 @@ export class Navigation {
       TopPageData,
       { stream: CounterStream; cancelFlag: { value: boolean } }
     >('/', {
-      beforeMove: async runtime => {
+      beforeMove: async () => {
         trendStore.setLoading();
         return {
           page: 'top',
@@ -116,6 +113,10 @@ export class Navigation {
           };
         },
         beforeEnter: async (runtime, { id }, page) => {
+          if (!this.server) {
+            // if client accessed a counter, update recent acces time.
+            notifyCounterPageAccess(runtime, id).catch(handleError);
+          }
           // Prepare counter stream.
           const stream = makeCounterStream(
             `/counters/${id}`,

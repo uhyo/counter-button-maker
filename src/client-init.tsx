@@ -7,7 +7,7 @@ import * as firebase from 'firebase';
 
 import '../css/app.css';
 import { handleError } from './logic/error';
-import { firebaseApp } from './logic/firebase';
+import { firebaseApp, firebase as getFirebaseNS } from './logic/firebase';
 import { Runtime } from './defs/runtime';
 import { fetchCounterPageByAPI } from './logic/counter';
 
@@ -24,6 +24,7 @@ firebaseApp()
 const runtime: Runtime = {
   stores,
   firebase: firebaseApp(),
+  firebaseGlobal: getFirebaseNS(),
   fetchCounterPageContent: fetchCounterPageByAPI,
 };
 // then, initialize Navigation.
