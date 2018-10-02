@@ -102,7 +102,9 @@ app.get('*', (req, res, next) => {
               },
               {
                 name: 'twitter:card',
-                content: historyInfo.social.image ? 'summary_large_image' : '',
+                content: historyInfo.social.image
+                  ? 'summary_large_image'
+                  : 'summary',
               },
               {
                 name: 'twitter:creator',
