@@ -46,7 +46,6 @@ export class Navigation {
       { stream: CounterStream; cancelFlag: { value: boolean } }
     >('/', {
       beforeMove: async runtime => {
-        const trends = await loadTrends(runtime);
         trendStore.setLoading();
         return {
           page: 'top',

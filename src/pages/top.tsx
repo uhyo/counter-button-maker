@@ -17,6 +17,8 @@ import { handleError } from '../logic/error';
 import { bind } from 'bind-decorator';
 import { SmallNotes } from '../components/paragraph';
 import { Link } from '../components/link';
+import { Trends } from '../components/trends';
+import { TwoColumn, SubContent } from '../components/two-column';
 
 export interface IPropTopPage {
   page: TopPageData;
@@ -46,22 +48,6 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
               <Button onClick={this.handleNewClick}>ボタンを作る</Button>
               <TweetButton onClick={this.handleTweet}>ツイート</TweetButton>
             </p>
-            <StoreConsumer>
-              {({ trend: { trends } }) =>
-                trends.length > 0 ? (
-                  <p>
-                    トレンド：{trends.map(({ id, title }) => (
-                      <React.Fragment key={id}>
-                        {' '}
-                        <Link href={`/${id}`} navigation={navigation}>
-                          {title}
-                        </Link>
-                      </React.Fragment>
-                    ))}
-                  </p>
-                ) : null
-              }
-            </StoreConsumer>
             {}
             <SmallNotes>
               ボタンを押すと数が増えるという全く新しい画期的なWebサービスを1分で作って公開できる全く新しい画期的なWebサービスを簡単に複製して公開できる画期的なWebサービスはこちら
@@ -89,6 +75,16 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
               </a>（もし他にもあったら教えてください）
             </SmallNotes>
           </MainContent>
+          <TwoColumn>
+            <SubContent>
+              <h1>トレンド</h1>
+              <StoreConsumer>
+                {({ trend }) => (
+                  <Trends trendStore={trend} navigation={navigation} />
+                )}
+              </StoreConsumer>
+            </SubContent>
+          </TwoColumn>
         </Centralize>
       </NormalPageWrapper>
     );

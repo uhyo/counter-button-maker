@@ -5,7 +5,7 @@ export class TrendStore {
   /**
    * Flag indicating currently loading trends.
    */
-  @observable public loading: boolean = false;
+  @observable public loading: boolean = true;
   /**
    * Current trend.
    */
