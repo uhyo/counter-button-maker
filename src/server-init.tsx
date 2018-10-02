@@ -6,7 +6,8 @@ import { Navigation, getHistoryInfo, HistoryInfo } from './logic/navigation';
 import { makeStores } from './store';
 import { PageData } from './defs/page';
 import { firebaseApp } from '../server/firebase';
-import { Trends } from './logic/trend';
+import { Runtime } from './defs/runtime';
+import { fetchCounterPageContent } from './logic/counter';
 
 export interface RenderResult {
   /**
@@ -39,16 +40,14 @@ export interface RenderResult {
 /**
  * Server-side rendering of requested page.
  */
-export async function render(
-  pathname: string,
-  trends: Trends,
-): Promise<RenderResult> {
+export async function render(pathname: string): Promise<RenderResult> {
   // Initialize store for this rendering.
   const stores = makeStores();
-  const runtime = {
+  const runtime: Runtime = {
     stores,
     firebase: firebaseApp,
-    getTrends: () => Promise.resolve(trends.data),
+    firebaseGlobal: null,
+    fetchCounterPageContent: id => fetchCounterPageContent(firebaseApp, id),
   };
   // Simulate navigation to given path.
   const nav = new Navigation(runtime, true);

@@ -7,7 +7,9 @@ import * as firebase from 'firebase';
 
 import '../css/app.css';
 import { handleError } from './logic/error';
-import { firebaseApp } from './logic/firebase';
+import { firebaseApp, firebase as getFirebaseNS } from './logic/firebase';
+import { Runtime } from './defs/runtime';
+import { fetchCounterPageByAPI } from './logic/counter';
 
 const appArea = document.getElementById('app');
 
@@ -19,14 +21,11 @@ firebaseApp()
   .settings({
     timestampsInSnapshots: true,
   });
-const runtime = {
+const runtime: Runtime = {
   stores,
   firebase: firebaseApp(),
-  getTrends: () =>
-    fetch('/api/trends', { method: 'GET', cache: 'default' }).then(res => {
-      const trends = res.json();
-      return trends;
-    }),
+  firebaseGlobal: getFirebaseNS(),
+  fetchCounterPageContent: fetchCounterPageByAPI,
 };
 // then, initialize Navigation.
 const navigation = new Navigation(runtime, false);

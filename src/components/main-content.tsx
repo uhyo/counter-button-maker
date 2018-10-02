@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { phone } from './media';
 
 /**
  * Wrapper of main content which should be placed at the center of page.
@@ -16,13 +17,14 @@ export const MainContent = styled.section`
     font-size: 2em;
   }
 
-  @media (max-width: 600px) {
+  ${phone`
     border-radius: 1em;
     padding: 0.6em;
 
     h1 {
       font-size: 1.3em;
     }
+    `}
   }
 `;
 

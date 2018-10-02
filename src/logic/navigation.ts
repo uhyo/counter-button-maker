@@ -1,4 +1,3 @@
-import { fetchCounterPageContent, fetchCounterPageByAPI } from './counter';
 import { history } from './history';
 import { handleError } from './error';
 import {
@@ -9,7 +8,6 @@ import {
   ErrorPageData,
 } from '../defs/page';
 import { serviceName, serviceDescription } from '../defs/service';
-import { Router } from '../layout/router';
 import { Routing, Route } from './routing';
 import {
   makeCounterStream,
@@ -17,9 +15,10 @@ import {
   CounterStream,
   makeDummyStream,
 } from './counter/stream';
-import { Stores } from '../store';
 import { Runtime } from '../defs/runtime';
 import { toJS } from 'mobx';
+import { loadTrends, loadRanking } from './trend/loader';
+import { notifyCounterPageAccess } from './trend';
 
 /**
  * Flag for history update.
@@ -34,19 +33,37 @@ export class Navigation {
   protected cancel: (() => void) | null = null;
   constructor(protected runtime: Runtime, public readonly server: boolean) {
     const {
-      stores: { counter: counterStore },
+      stores: { counter: counterStore, trend: trendStore },
     } = runtime;
     // Construct a router.
     const router = (this.router = new Routing());
-    router.add<{}, TopPageData, { stream: CounterStream }>('/', {
-      beforeMove: async runtime => {
-        const trends = await runtime.getTrends();
+    router.add<
+      {},
+      TopPageData,
+      { stream: CounterStream; cancelFlag: { value: boolean } }
+    >('/', {
+      beforeMove: async () => {
+        trendStore.setLoading();
         return {
           page: 'top',
-          trends,
         };
       },
       beforeEnter: async (runtime, _, _1) => {
+        // start loading trends if it's on client.
+        const cancelFlag = { value: false };
+        if (!this.server) {
+          // intentionally do not wait for this.
+          loadTrends(runtime).then(trends => {
+            if (!cancelFlag.value) {
+              trendStore.loadTrend(trends);
+            }
+          });
+          loadRanking(runtime).then(trends => {
+            if (!cancelFlag.value) {
+              trendStore.loadRanking(trends);
+            }
+          });
+        }
         // Prepare counter stream.
         const stream = makeCounterStream('/top', runtime, this.server);
         const count = await stream.start();
@@ -58,12 +75,13 @@ export class Navigation {
             counterStore.updateCount(count);
           });
         }
-        return { stream };
+        return { stream, cancelFlag };
       },
-
-      beforeLeave: async (_, _1, _2, { stream }) => {
+      beforeLeave: async (_, _1, _2, { stream, cancelFlag }) => {
         // stop stream when leaving page.
         stream.close();
+        // stop effect of remaining handlers.
+        cancelFlag.value = true;
         // counter value is invalid until new value is fetched
         if (!this.server) {
           counterStore.invalidate();
@@ -84,9 +102,7 @@ export class Navigation {
       {
         beforeMove: async (runtime, { id }) => {
           // Fetch page data for it.
-          const content = await (this.server
-            ? fetchCounterPageContent(runtime.firebase, id)
-            : fetchCounterPageByAPI(id));
+          const content = await runtime.fetchCounterPageContent(id);
           if (content == null) {
             // Such page is not found. Internal redirect
             return `/404/${id}`;
@@ -97,6 +113,10 @@ export class Navigation {
           };
         },
         beforeEnter: async (runtime, { id }, page) => {
+          if (!this.server) {
+            // if client accessed a counter, update recent acces time.
+            notifyCounterPageAccess(runtime, id).catch(handleError);
+          }
           // Prepare counter stream.
           const stream = makeCounterStream(
             `/counters/${id}`,

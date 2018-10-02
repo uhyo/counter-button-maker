@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { PageWrapperBase, NormalPageWrapper } from './base';
+import { NormalPageWrapper } from './base';
 import { serviceName, serviceDescription } from '../defs/service';
 import { Button, TweetButton } from '../components/button';
 import { Centralize } from '../components/center';
@@ -8,15 +8,12 @@ import { MainContent } from '../components/main-content';
 import { CounterValue } from '../components/counter';
 import { StoreConsumer } from '../store';
 import { TopPageData } from '../defs/page';
-import { observer } from 'mobx-react';
-import { firebaseui, firebase } from '../logic/firebase';
-import { PageStore } from '../store/page-store';
-import { createDiffieHellman } from 'crypto';
 import { Navigation } from '../logic/navigation';
 import { handleError } from '../logic/error';
 import { bind } from 'bind-decorator';
 import { SmallNotes } from '../components/paragraph';
-import { Link } from '../components/link';
+import { Trends } from '../components/trends';
+import { TwoColumn, SubContent } from '../components/two-column';
 
 export interface IPropTopPage {
   page: TopPageData;
@@ -27,10 +24,7 @@ export interface IPropTopPage {
  */
 export class TopPage extends React.PureComponent<IPropTopPage, {}> {
   public render() {
-    const {
-      page: { trends },
-      navigation,
-    } = this.props;
+    const { navigation } = this.props;
     return (
       <NormalPageWrapper>
         <Centralize>
@@ -49,18 +43,7 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
               <Button onClick={this.handleNewClick}>ボタンを作る</Button>
               <TweetButton onClick={this.handleTweet}>ツイート</TweetButton>
             </p>
-            {trends.length > 0 ? (
-              <p>
-                トレンド：{trends.map(({ id, title }) => (
-                  <React.Fragment key={id}>
-                    {' '}
-                    <Link href={`/${id}`} navigation={navigation}>
-                      {title}
-                    </Link>
-                  </React.Fragment>
-                ))}
-              </p>
-            ) : null}
+            {}
             <SmallNotes>
               ボタンを押すと数が増えるという全く新しい画期的なWebサービスを1分で作って公開できる全く新しい画期的なWebサービスを簡単に複製して公開できる画期的なWebサービスはこちら
               →
@@ -87,6 +70,33 @@ export class TopPage extends React.PureComponent<IPropTopPage, {}> {
               </a>（もし他にもあったら教えてください）
             </SmallNotes>
           </MainContent>
+          <TwoColumn>
+            <SubContent>
+              <h1>トレンド</h1>
+              <StoreConsumer>
+                {({ trend }) => (
+                  <Trends
+                    type="trends"
+                    trendStore={trend}
+                    navigation={navigation}
+                  />
+                )}
+              </StoreConsumer>
+            </SubContent>
+            <SubContent>
+              <h1>ランキング</h1>
+              <StoreConsumer>
+                {({ trend }) => (
+                  <Trends
+                    type="ranking"
+                    show-number
+                    trendStore={trend}
+                    navigation={navigation}
+                  />
+                )}
+              </StoreConsumer>
+            </SubContent>
+          </TwoColumn>
         </Centralize>
       </NormalPageWrapper>
     );
