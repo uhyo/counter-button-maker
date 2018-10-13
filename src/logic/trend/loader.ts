@@ -17,7 +17,7 @@ async function loadSortedData(
   const ref = db.ref(path);
   const trendsQuery = ref.orderByValue().limitToLast(trendNumber);
   const trendsSnapshot = await trendsQuery.once('value');
-  const data: Record<string, number> = trendsSnapshot.toJSON();
+  const data = (trendsSnapshot.toJSON() || {}) as Record<string, number>;
   // sort data keys by value.
   const keys = Object.keys(data).sort((a, b) => data[b] - data[a]);
   // load counter data for each counter ids.
